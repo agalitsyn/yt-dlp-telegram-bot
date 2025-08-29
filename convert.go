@@ -18,11 +18,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const probeTimeout = 10 * time.Second
-const maxFFmpegProbeBytes = 20 * 1024 * 1024
+const (
+	probeTimeout        = 10 * time.Second
+	maxFFmpegProbeBytes = 20 * 1024 * 1024
+)
 
-var compatibleVideoCodecs = []string{"h264", "vp9", "hevc"}
-var compatibleAudioCodecs = []string{"aac", "opus", "mp3"}
+var (
+	compatibleVideoCodecs = []string{"h264", "vp9", "hevc"}
+	compatibleAudioCodecs = []string{"aac", "opus", "mp3"}
+)
 
 type ffmpegProbeDataStreamsStream struct {
 	CodecName string `json:"codec_name"`

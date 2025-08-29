@@ -23,7 +23,13 @@ func (p Uploader) Chunk(ctx context.Context, state uploader.ProgressState) error
 	return nil
 }
 
-func (p *Uploader) UploadFile(ctx context.Context, entities tg.Entities, u *tg.UpdateNewMessage, f io.ReadCloser, format, title string) error {
+func (p *Uploader) UploadFile(
+	ctx context.Context,
+	entities tg.Entities,
+	u *tg.UpdateNewMessage,
+	f io.ReadCloser,
+	format, title string,
+) error {
 	// Reading to a buffer first, because we don't know the file size.
 	var buf bytes.Buffer
 	for {
@@ -55,7 +61,9 @@ func (p *Uploader) UploadFile(ctx context.Context, entities tg.Entities, u *tg.U
 	if format == "mp3" {
 		document = message.UploadedDocument(upload).Filename(filename).Audio().Title(title)
 	} else {
-		document = message.UploadedDocument(upload).Filename(filename).Video()
+		v := message.UploadedDocument(upload).Filename(filename).Video()
+		v = v.Resolution(1280, 720)
+		document = v
 	}
 
 	// Sending message with media.
