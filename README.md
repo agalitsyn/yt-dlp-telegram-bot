@@ -20,20 +20,6 @@ The only dependencies are [yt-dlp](https://github.com/yt-dlp/yt-dlp) and
 [ffmpeg](https://github.com/FFmpeg/FFmpeg). Tested on Linux, but should be
 able to run on other operating systems.
 
-## Compiling
-
-You'll need Go installed on your computer. Install a recent package of `golang`.
-Then:
-
-```
-go get github.com/nonoo/yt-dlp-telegram-bot
-go install github.com/nonoo/yt-dlp-telegram-bot
-```
-
-This will typically install `yt-dlp-telegram-bot` into `$HOME/go/bin`.
-
-Or just enter `go build` in the cloned Git source repo directory.
-
 ## Prerequisites
 
 1. Create a Telegram bot using [BotFather](https://t.me/BotFather) and get the
@@ -45,6 +31,19 @@ Or just enter `go build` in the cloned Git source repo directory.
    browser.
 3. Make sure `yt-dlp`, `ffprobe` and `ffmpeg` commands are available on your
    system.
+
+## Quick start
+
+Run on Mac OS:
+
+```sh
+cd <this-project-folder>
+brew install yt-dlp ffmgeg go
+go build -v
+cp config.inc.sh-example config.inc.sh
+# fill config.inc.sh with proper values from step above
+bash run.sh
+```
 
 ## Running
 
@@ -95,12 +94,3 @@ cookie file.
 
 You don't need to enter the `/dlp` command if you send an URL to the bot using
 a private chat.
-
-## Contributors
-
-- Norbert Varga [nonoo@nonoo.hu](mailto:nonoo@nonoo.hu)
-- Akos Marton
-
-## Donations
-
-If you find this bot useful then [buy me a beer](https://paypal.me/ha2non). :)
