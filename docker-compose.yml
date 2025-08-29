@@ -1,0 +1,13 @@
+services:
+  yt-dlp-tg-bot:
+    build: .
+    restart: always
+    environment:
+      # https://my.telegram.org/apps
+      API_ID: 12345678
+      API_HASH: 476c7a3_example_hash_d1f9edc0a74
+      BOT_TOKEN: "1234567890:ABCDEFGab_UG0_example_token_yMtSVBe"
+      ALLOWED_USERIDS: "123456789,987654321"
+      ADMIN_USERIDS: "123456789"
+      ALLOWED_GROUPIDS: ""
+      MAX_SIZE: 512MB
