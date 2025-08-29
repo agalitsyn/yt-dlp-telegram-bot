@@ -45,7 +45,7 @@ cp config.inc.sh-example config.inc.sh
 bash run.sh
 ```
 
-## Running
+## Configuration
 
 You can get the available command line arguments with `-h`.
 Mandatory arguments are:
