@@ -9,7 +9,7 @@ import (
 	"github.com/wader/goutubedl"
 )
 
-const downloadAndConvertTimeout = 5 * time.Minute
+const downloadAndConvertTimeout = 1 * time.Hour
 
 type ConvertStartCallbackFunc func(ctx context.Context, videoCodecs, audioCodecs, convertActionsNeeded string)
 type UpdateProgressPercentCallbackFunc func(progressStr string, progressPercent int)
