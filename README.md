@@ -34,15 +34,50 @@ able to run on other operating systems.
 
 ## Quick start
 
-Run on Mac OS:
+Install prerequisites (mac os):
 
 ```sh
-cd <this-project-folder>
 brew install yt-dlp ffmgeg go
-go build -v
+```
+
+### Run locally
+
+```sh
+go build -v -mod=vendor
 cp config.inc.sh-example config.inc.sh
 # fill config.inc.sh with proper values from step above
 bash run.sh
+```
+
+### Run on server via docker-compose
+
+Build image locally and copy needed files to server:
+
+```sh
+docker buildx build --platform linux/amd64 -t yt-dlp-tg-bot:latest .
+docker save yt-dlp-tg-bot:latest | gzip > yt-dlp-tg-bot.tar.gz
+
+scp docker-compose.yml <address> -l <user> -p <port>
+scp config.inc.sh-example <address> -l <user> -p <port>
+scp yt-dlp-tg-bot.tar.gz <address> -l <user> -p <port>
+```
+
+In most cases you will get error `Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication`.
+Prepare cookie file locally:
+
+```sh
+yt-dlp --cookies-from-browser <YOUR-BROWSER-NAME (like chrome)> --cookies yt-dlp-cookies.txt
+scp yt-dlp-cookies.txt <address> -l <user> -p <port>
+scp yt-dlp.conf <address> -l <user> -p <port>
+```
+
+`ssh` to server, import image and run `docker compose`:
+
+```sh
+docker load < yt-dlp-tg-bot.tar.gz
+cp config.inc.sh-example config.inc.sh
+# fill config.inc.sh with proper values
+docker compose up -d
 ```
 
 ## Configuration
@@ -82,7 +117,7 @@ variable. Available OS environment variables are:
 - `YTDLP_COOKIES`
 
 The contents of the `YTDLP_COOKIES` environment variable will be written to the
-file `/tmp/ytdlp-cookies.txt`. This will be used by `yt-dlp` if it is running
+file `/tmp/yt-dlp-cookies.txt`. This will be used by `yt-dlp` if it is running
 in a docker container, as the `yt-dlp.conf` file in the container points to this
 cookie file.
 

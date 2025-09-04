@@ -1,2 +1,5 @@
+.claude
 /config.inc.sh
 /yt-dlp-telegram-bot
+*.tar.gz
+yt-dlp-cookies.txt

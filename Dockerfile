@@ -1,14 +1,11 @@
-FROM golang:1.22 AS builder
+FROM golang:1.22-alpine AS builder
 WORKDIR /app/
-COPY go.mod go.sum /app/
-RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v
+RUN go build -v -mod=vendor
 
-FROM python:alpine
+
+FROM python:3.13-alpine
 RUN apk update && apk upgrade && apk add --no-cache ffmpeg
 COPY --from=builder /app/yt-dlp-telegram-bot /app/yt-dlp-telegram-bot
-COPY --from=builder /app/yt-dlp.conf /root/yt-dlp.conf
-
-ENTRYPOINT ["/app/yt-dlp-telegram-bot"]
-ENV API_ID= API_HASH= BOT_TOKEN= ALLOWED_USERIDS= ADMIN_USERIDS= ALLOWED_GROUPIDS= YTDLP_COOKIES=
+RUN touch /app/yt-dlp-cookies.txt && chmod 644 /app/yt-dlp-cookies.txt
+CMD ["/app/yt-dlp-telegram-bot"]

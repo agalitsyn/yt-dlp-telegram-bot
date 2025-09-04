@@ -141,7 +141,7 @@ func (p *paramsType) Init() error {
 	// Writing env. var YTDLP_COOKIES contents to a file.
 	// In case a docker container is used, the yt-dlp.conf points yt-dlp to this cookie file.
 	if cookies := os.Getenv("YTDLP_COOKIES"); cookies != "" {
-		f, err := os.Create("/tmp/ytdlp-cookies.txt")
+		f, err := os.Create("/app/yt-dlp-cookies.txt")
 		if err != nil {
 			return fmt.Errorf("couldn't create cookies file: %w", err)
 		}

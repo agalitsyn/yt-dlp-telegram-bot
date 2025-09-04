@@ -1,7 +1,11 @@
 services:
-  yt-dlp-tg-bot:
+  bot:
     image: yt-dlp-tg-bot
+    container_name: bot
     build: .
-    restart: always
     env_file:
       - config.inc.sh
+    volumes:
+      - ./yt-dlp-cookies.txt:/app/yt-dlp-cookies.txt
+      - ./yt-dlp.conf:/root/yt-dlp.conf
+    restart: always
