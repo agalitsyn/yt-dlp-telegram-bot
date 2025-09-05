@@ -10,10 +10,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gotd/td/clock"
-	"github.com/gotd/td/internal/crypto"
-	"github.com/gotd/td/internal/exchange"
-	"github.com/gotd/td/internal/mtproto"
-	"github.com/gotd/td/internal/proto"
+	"github.com/gotd/td/crypto"
+	"github.com/gotd/td/exchange"
+	"github.com/gotd/td/mtproto"
+	"github.com/gotd/td/proto"
 	"github.com/gotd/td/telegram/dcs"
 	"github.com/gotd/td/tg"
 )
@@ -48,6 +48,8 @@ type Options struct {
 
 	// ReconnectionBackoff configures and returns reconnection backoff object.
 	ReconnectionBackoff func() backoff.BackOff
+	// OnDead will be called on connection dead.
+	OnDead func()
 	// MigrationTimeout configures migration timeout.
 	MigrationTimeout time.Duration
 
@@ -94,6 +96,18 @@ type Options struct {
 
 	// OpenTelemetry.
 	TracerProvider trace.TracerProvider
+
+	// OnTransfer is called during authorization transfer.
+	// See [AuthTransferHandler] for details.
+	OnTransfer AuthTransferHandler
+
+	// OnSelfError is called when client receives error calling Self() on connect.
+	// Return error to stop reconnection.
+	//
+	// NB: this method is called immediately after connection, so it's not expected to be
+	// non-nil error on first connection before auth, so it's safe to return nil until
+	// first successful auth.
+	OnSelfError func(ctx context.Context, err error) error
 }
 
 func (opt *Options) setDefaults() {
@@ -140,6 +154,9 @@ func (opt *Options) setDefaults() {
 			return nil
 		})
 	}
+	if opt.OnTransfer == nil {
+		opt.OnTransfer = noopOnTransfer
+	}
 }
 
 func defaultBackoff(c clock.Clock) func() backoff.BackOff {
@@ -147,6 +164,8 @@ func defaultBackoff(c clock.Clock) func() backoff.BackOff {
 		b := backoff.NewExponentialBackOff()
 		b.Clock = c
 		b.MaxElapsedTime = 0
+		b.MaxInterval = time.Second * 5
+		b.InitialInterval = time.Millisecond * 100
 		return b
 	}
 }

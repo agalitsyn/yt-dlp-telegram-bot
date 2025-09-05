@@ -13,11 +13,11 @@ import (
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
-	"github.com/gotd/td/internal/mtproto"
-	"github.com/gotd/td/internal/pool"
-	"github.com/gotd/td/internal/tdsync"
+	"github.com/gotd/td/mtproto"
 	"github.com/gotd/td/oteltg"
+	"github.com/gotd/td/pool"
 	"github.com/gotd/td/session"
+	"github.com/gotd/td/tdsync"
 	"github.com/gotd/td/telegram/dcs"
 	"github.com/gotd/td/telegram/internal/manager"
 	"github.com/gotd/td/telegram/internal/version"
@@ -58,6 +58,14 @@ type Client struct {
 	// DO NOT change the order of members arbitrarily.
 	// Ref: https://pkg.go.dev/sync/atomic#pkg-note-BUG
 
+	// Connection factory fields.
+	connsCounter   atomic.Int64
+	create         connConstructor        // immutable
+	resolver       dcs.Resolver           // immutable
+	onDead         func()                 // immutable
+	newConnBackoff func() backoff.BackOff // immutable
+	defaultMode    manager.ConnMode       // immutable
+
 	// Migration state.
 	migrationTimeout time.Duration // immutable
 	migration        chan struct{}
@@ -82,16 +90,11 @@ type Client struct {
 	testDC bool // immutable
 
 	// Connection state. Guarded by connMux.
-	session *pool.SyncSession
-	cfg     *manager.AtomicConfig
-	conn    clientConn
-	connMux sync.Mutex
-	// Connection factory fields.
-	create       connConstructor        // immutable
-	resolver     dcs.Resolver           // immutable
-	connBackoff  func() backoff.BackOff // immutable
-	defaultMode  manager.ConnMode       // immutable
-	connsCounter atomic.Int64
+	session     *pool.SyncSession
+	cfg         *manager.AtomicConfig
+	conn        clientConn
+	connBackoff atomic.Pointer[backoff.BackOff]
+	connMux     sync.Mutex
 
 	// Restart signal channel.
 	restart chan struct{} // immutable
@@ -128,6 +131,12 @@ type Client struct {
 
 	// Tracing.
 	tracer trace.Tracer
+
+	// onTransfer is called in transfer.
+	onTransfer AuthTransferHandler
+
+	// onSelfError is called on error calling Self().
+	onSelfError func(ctx context.Context, err error) error
 }
 
 // NewClient creates new unstarted client.
@@ -155,12 +164,15 @@ func NewClient(appID int, appHash string, opt Options) *Client {
 		create:           defaultConstructor(),
 		resolver:         opt.Resolver,
 		defaultMode:      mode,
-		connBackoff:      opt.ReconnectionBackoff,
+		newConnBackoff:   opt.ReconnectionBackoff,
+		onDead:           opt.OnDead,
 		clock:            opt.Clock,
 		device:           opt.Device,
 		migrationTimeout: opt.MigrationTimeout,
 		noUpdatesMode:    opt.NoUpdates,
 		mw:               opt.Middlewares,
+		onTransfer:       opt.OnTransfer,
+		onSelfError:      opt.OnSelfError,
 	}
 	if opt.TracerProvider != nil {
 		client.tracer = opt.TracerProvider.Tracer(oteltg.Name)

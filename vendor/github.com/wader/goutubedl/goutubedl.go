@@ -217,14 +217,20 @@ var TypeFromString = map[string]Type{
 
 // Options for New()
 type Options struct {
-	Type               Type
-	PlaylistStart      uint   // --playlist-start
-	PlaylistEnd        uint   // --playlist-end
-	Downloader         string // --downloader
-	DownloadThumbnail  bool
-	DownloadSubtitles  bool
-	DownloadSections   string // --download-sections
+	Type              Type
+	PlaylistStart     uint   // --playlist-start
+	PlaylistEnd       uint   // --playlist-end
+	FlatPlaylist      bool   // --flat-playlist, faster fetching but with less video info for playlists
+	Downloader        string // --downloader
+	DownloadThumbnail bool
+	DownloadSubtitles bool
+	DownloadSections  string // --download-sections
+	Referer           string // --referer
+	Impersonate       string // --impersonate
+
 	ProxyUrl           string // --proxy URL  http://host:port or socks5://host:port
+	UseIPV4            bool   // -4 Make all connections via IPv4
+	Cookies            string // --cookies FILE
 	CookiesFromBrowser string // --cookies-from-browser BROWSER[:FOLDER]
 	DebugLog           Printer
 	StderrFn           func(cmd *exec.Cmd) io.Writer // if not nil, function to get Writer for stderr
@@ -321,8 +327,24 @@ func infoFromURL(
 		cmd.Args = append(cmd.Args, "--proxy", options.ProxyUrl)
 	}
 
+	if options.UseIPV4 {
+		cmd.Args = append(cmd.Args, "-4")
+	}
+
 	if options.Downloader != "" {
 		cmd.Args = append(cmd.Args, "--downloader", options.Downloader)
+	}
+
+	if options.Referer != "" {
+		cmd.Args = append(cmd.Args, "--referer", options.Referer)
+	}
+
+	if options.Impersonate != "" {
+		cmd.Args = append(cmd.Args, "--impersonate", options.Impersonate)
+	}
+
+	if options.Cookies != "" {
+		cmd.Args = append(cmd.Args, "--cookies", options.Cookies)
 	}
 
 	if options.CookiesFromBrowser != "" {
@@ -342,6 +364,9 @@ func infoFromURL(
 			cmd.Args = append(cmd.Args,
 				"--playlist-end", strconv.Itoa(int(options.PlaylistEnd)),
 			)
+		}
+		if options.FlatPlaylist {
+			cmd.Args = append(cmd.Args, "--flat-playlist")
 		}
 	case TypeSingle:
 		if options.DownloadSubtitles {
@@ -433,7 +458,6 @@ func infoFromURL(
 		return c.Do(r)
 	}
 
-	// TODO: use headers from youtube-dl info for thumbnail and subtitle download?
 	if options.DownloadThumbnail && info.Thumbnail != "" {
 		resp, respErr := get(info.Thumbnail)
 		if respErr == nil {
@@ -517,6 +541,8 @@ func (result Result) Download(ctx context.Context, filter string) (*DownloadResu
 }
 
 type DownloadOptions struct {
+	AudioFormats      string // --audio-formats Download audio using formats (best, aac, alac, flac, m4a, mp3, opus, vorbis, wav)
+	DownloadAudioOnly bool   // -x Download audio only from video
 	// Download format matched by filter (usually a format id or quality designator).
 	// If filter is empty, then youtube-dl will use its default format selector.
 	Filter string
@@ -604,7 +630,10 @@ func (result Result) DownloadWithOptions(
 	} else {
 		cmd.Args = append(cmd.Args, "--load-info", jsonTempPath)
 	}
-
+	// force IPV4 Usage
+	if result.Options.UseIPV4 {
+		cmd.Args = append(cmd.Args, "-4")
+	}
 	// don't need to specify if direct as there is only one
 	// also seems to be issues when using filter with generic extractor
 	if !result.Info.Direct && options.Filter != "" {
@@ -613,6 +642,14 @@ func (result Result) DownloadWithOptions(
 
 	if options.PlaylistIndex > 0 {
 		cmd.Args = append(cmd.Args, "--playlist-items", fmt.Sprint(options.PlaylistIndex))
+	}
+
+	if options.DownloadAudioOnly {
+		cmd.Args = append(cmd.Args, "-x")
+	}
+
+	if options.AudioFormats != "" {
+		cmd.Args = append(cmd.Args, "--audio-format", options.AudioFormats)
 	}
 
 	if result.Options.ProxyUrl != "" {

@@ -31,18 +31,21 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// StoriesTogglePinnedRequest represents TL type `stories.togglePinned#51602944`.
+// StoriesTogglePinnedRequest represents TL type `stories.togglePinned#9a75a1ef`.
+// Pin or unpin one or more stories
 //
 // See https://core.telegram.org/method/stories.togglePinned for reference.
 type StoriesTogglePinnedRequest struct {
-	// ID field of StoriesTogglePinnedRequest.
+	// Peer where to pin or unpin stories
+	Peer InputPeerClass
+	// IDs of stories to pin or unpin
 	ID []int
-	// Pinned field of StoriesTogglePinnedRequest.
+	// Whether to pin or unpin the stories
 	Pinned bool
 }
 
 // StoriesTogglePinnedRequestTypeID is TL type id of StoriesTogglePinnedRequest.
-const StoriesTogglePinnedRequestTypeID = 0x51602944
+const StoriesTogglePinnedRequestTypeID = 0x9a75a1ef
 
 // Ensuring interfaces in compile-time for StoriesTogglePinnedRequest.
 var (
@@ -55,6 +58,9 @@ var (
 func (t *StoriesTogglePinnedRequest) Zero() bool {
 	if t == nil {
 		return true
+	}
+	if !(t.Peer == nil) {
+		return false
 	}
 	if !(t.ID == nil) {
 		return false
@@ -77,9 +83,11 @@ func (t *StoriesTogglePinnedRequest) String() string {
 
 // FillFrom fills StoriesTogglePinnedRequest from given interface.
 func (t *StoriesTogglePinnedRequest) FillFrom(from interface {
+	GetPeer() (value InputPeerClass)
 	GetID() (value []int)
 	GetPinned() (value bool)
 }) {
+	t.Peer = from.GetPeer()
 	t.ID = from.GetID()
 	t.Pinned = from.GetPinned()
 }
@@ -108,6 +116,10 @@ func (t *StoriesTogglePinnedRequest) TypeInfo() tdp.Type {
 	}
 	typ.Fields = []tdp.Field{
 		{
+			Name:       "Peer",
+			SchemaName: "peer",
+		},
+		{
 			Name:       "ID",
 			SchemaName: "id",
 		},
@@ -122,7 +134,7 @@ func (t *StoriesTogglePinnedRequest) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (t *StoriesTogglePinnedRequest) Encode(b *bin.Buffer) error {
 	if t == nil {
-		return fmt.Errorf("can't encode stories.togglePinned#51602944 as nil")
+		return fmt.Errorf("can't encode stories.togglePinned#9a75a1ef as nil")
 	}
 	b.PutID(StoriesTogglePinnedRequestTypeID)
 	return t.EncodeBare(b)
@@ -131,7 +143,13 @@ func (t *StoriesTogglePinnedRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (t *StoriesTogglePinnedRequest) EncodeBare(b *bin.Buffer) error {
 	if t == nil {
-		return fmt.Errorf("can't encode stories.togglePinned#51602944 as nil")
+		return fmt.Errorf("can't encode stories.togglePinned#9a75a1ef as nil")
+	}
+	if t.Peer == nil {
+		return fmt.Errorf("unable to encode stories.togglePinned#9a75a1ef: field peer is nil")
+	}
+	if err := t.Peer.Encode(b); err != nil {
+		return fmt.Errorf("unable to encode stories.togglePinned#9a75a1ef: field peer: %w", err)
 	}
 	b.PutVectorHeader(len(t.ID))
 	for _, v := range t.ID {
@@ -144,10 +162,10 @@ func (t *StoriesTogglePinnedRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (t *StoriesTogglePinnedRequest) Decode(b *bin.Buffer) error {
 	if t == nil {
-		return fmt.Errorf("can't decode stories.togglePinned#51602944 to nil")
+		return fmt.Errorf("can't decode stories.togglePinned#9a75a1ef to nil")
 	}
 	if err := b.ConsumeID(StoriesTogglePinnedRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode stories.togglePinned#51602944: %w", err)
+		return fmt.Errorf("unable to decode stories.togglePinned#9a75a1ef: %w", err)
 	}
 	return t.DecodeBare(b)
 }
@@ -155,12 +173,19 @@ func (t *StoriesTogglePinnedRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (t *StoriesTogglePinnedRequest) DecodeBare(b *bin.Buffer) error {
 	if t == nil {
-		return fmt.Errorf("can't decode stories.togglePinned#51602944 to nil")
+		return fmt.Errorf("can't decode stories.togglePinned#9a75a1ef to nil")
+	}
+	{
+		value, err := DecodeInputPeer(b)
+		if err != nil {
+			return fmt.Errorf("unable to decode stories.togglePinned#9a75a1ef: field peer: %w", err)
+		}
+		t.Peer = value
 	}
 	{
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.togglePinned#51602944: field id: %w", err)
+			return fmt.Errorf("unable to decode stories.togglePinned#9a75a1ef: field id: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -169,7 +194,7 @@ func (t *StoriesTogglePinnedRequest) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			value, err := b.Int()
 			if err != nil {
-				return fmt.Errorf("unable to decode stories.togglePinned#51602944: field id: %w", err)
+				return fmt.Errorf("unable to decode stories.togglePinned#9a75a1ef: field id: %w", err)
 			}
 			t.ID = append(t.ID, value)
 		}
@@ -177,11 +202,19 @@ func (t *StoriesTogglePinnedRequest) DecodeBare(b *bin.Buffer) error {
 	{
 		value, err := b.Bool()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.togglePinned#51602944: field pinned: %w", err)
+			return fmt.Errorf("unable to decode stories.togglePinned#9a75a1ef: field pinned: %w", err)
 		}
 		t.Pinned = value
 	}
 	return nil
+}
+
+// GetPeer returns value of Peer field.
+func (t *StoriesTogglePinnedRequest) GetPeer() (value InputPeerClass) {
+	if t == nil {
+		return
+	}
+	return t.Peer
 }
 
 // GetID returns value of ID field.
@@ -200,7 +233,12 @@ func (t *StoriesTogglePinnedRequest) GetPinned() (value bool) {
 	return t.Pinned
 }
 
-// StoriesTogglePinned invokes method stories.togglePinned#51602944 returning error if any.
+// StoriesTogglePinned invokes method stories.togglePinned#9a75a1ef returning error if any.
+// Pin or unpin one or more stories
+//
+// Possible errors:
+//
+//	400 PEER_ID_INVALID: The provided peer id is invalid.
 //
 // See https://core.telegram.org/method/stories.togglePinned for reference.
 func (c *Client) StoriesTogglePinned(ctx context.Context, request *StoriesTogglePinnedRequest) ([]int, error) {

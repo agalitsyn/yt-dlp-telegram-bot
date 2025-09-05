@@ -4,15 +4,15 @@ import (
 	"context"
 	"io"
 
+	"github.com/coder/websocket"
 	"github.com/go-faster/errors"
-	"nhooyr.io/websocket"
 
-	"github.com/gotd/td/internal/crypto"
-	"github.com/gotd/td/internal/mtproxy"
-	"github.com/gotd/td/internal/mtproxy/obfuscator"
-	"github.com/gotd/td/internal/proto/codec"
-	"github.com/gotd/td/internal/wsutil"
+	"github.com/gotd/td/crypto"
+	"github.com/gotd/td/mtproxy"
+	"github.com/gotd/td/mtproxy/obfuscator"
+	"github.com/gotd/td/proto/codec"
 	"github.com/gotd/td/transport"
+	"github.com/gotd/td/wsutil"
 )
 
 var _ Resolver = ws{}

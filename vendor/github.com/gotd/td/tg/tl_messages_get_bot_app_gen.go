@@ -32,19 +32,19 @@ var (
 )
 
 // MessagesGetBotAppRequest represents TL type `messages.getBotApp#34fdc5c3`.
-// Obtain information about a named bot web app¹
+// Obtain information about a direct link Mini App¹
 //
 // Links:
-//  1. https://core.telegram.org/api/bots/webapps#named-bot-web-apps
+//  1. https://core.telegram.org/api/bots/webapps#direct-link-mini-apps
 //
 // See https://core.telegram.org/method/messages.getBotApp for reference.
 type MessagesGetBotAppRequest struct {
-	// Bot app information obtained from a named bot web app deep link »¹.
+	// Bot app information obtained from a Direct Mini App deep link »¹.
 	//
 	// Links:
-	//  1) https://core.telegram.org/api/links#named-bot-web-app-links
+	//  1) https://core.telegram.org/api/links#direct-mini-app-links
 	App InputBotAppClass
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -203,17 +203,18 @@ func (g *MessagesGetBotAppRequest) GetHash() (value int64) {
 }
 
 // MessagesGetBotApp invokes method messages.getBotApp#34fdc5c3 returning error if any.
-// Obtain information about a named bot web app¹
+// Obtain information about a direct link Mini App¹
 //
 // Links:
-//  1. https://core.telegram.org/api/bots/webapps#named-bot-web-apps
+//  1. https://core.telegram.org/api/bots/webapps#direct-link-mini-apps
 //
 // Possible errors:
 //
+//	400 BOT_APP_BOT_INVALID: The bot_id passed in the inputBotAppShortName constructor is invalid.
 //	400 BOT_APP_INVALID: The specified bot app is invalid.
+//	400 BOT_APP_SHORTNAME_INVALID: The specified bot app short name is invalid.
 //
 // See https://core.telegram.org/method/messages.getBotApp for reference.
-// Can be used by bots.
 func (c *Client) MessagesGetBotApp(ctx context.Context, request *MessagesGetBotAppRequest) (*MessagesBotApp, error) {
 	var result MessagesBotApp
 

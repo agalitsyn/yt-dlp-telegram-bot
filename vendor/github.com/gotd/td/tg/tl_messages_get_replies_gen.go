@@ -66,7 +66,7 @@ type MessagesGetRepliesRequest struct {
 	// If a positive value was transferred, the method will return only messages with ID
 	// bigger than min_id
 	MinID int
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -408,6 +408,7 @@ func (g *MessagesGetRepliesRequest) GetHash() (value int64) {
 //	400 CHANNEL_PRIVATE: You haven't joined this channel/supergroup.
 //	400 MSG_ID_INVALID: Invalid message ID provided.
 //	400 PEER_ID_INVALID: The provided peer id is invalid.
+//	400 TOPIC_ID_INVALID: The specified topic ID is invalid.
 //
 // See https://core.telegram.org/method/messages.getReplies for reference.
 func (c *Client) MessagesGetReplies(ctx context.Context, request *MessagesGetRepliesRequest) (MessagesMessagesClass, error) {

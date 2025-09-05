@@ -31,13 +31,18 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// PollAnswer represents TL type `pollAnswer#6ca9c2e9`.
+// PollAnswer represents TL type `pollAnswer#ff16e2ca`.
 // A possible answer of a poll
 //
 // See https://core.telegram.org/constructor/pollAnswer for reference.
 type PollAnswer struct {
-	// Textual representation of the answer
-	Text string
+	// Textual representation of the answer (only Premium¹ users can use custom emoji
+	// entities² here).
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/premium
+	//  2) https://core.telegram.org/api/custom-emoji
+	Text TextWithEntities
 	// The param that has to be passed to messages.sendVote¹.
 	//
 	// Links:
@@ -46,7 +51,7 @@ type PollAnswer struct {
 }
 
 // PollAnswerTypeID is TL type id of PollAnswer.
-const PollAnswerTypeID = 0x6ca9c2e9
+const PollAnswerTypeID = 0xff16e2ca
 
 // Ensuring interfaces in compile-time for PollAnswer.
 var (
@@ -60,7 +65,7 @@ func (p *PollAnswer) Zero() bool {
 	if p == nil {
 		return true
 	}
-	if !(p.Text == "") {
+	if !(p.Text.Zero()) {
 		return false
 	}
 	if !(p.Option == nil) {
@@ -81,7 +86,7 @@ func (p *PollAnswer) String() string {
 
 // FillFrom fills PollAnswer from given interface.
 func (p *PollAnswer) FillFrom(from interface {
-	GetText() (value string)
+	GetText() (value TextWithEntities)
 	GetOption() (value []byte)
 }) {
 	p.Text = from.GetText()
@@ -126,7 +131,7 @@ func (p *PollAnswer) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (p *PollAnswer) Encode(b *bin.Buffer) error {
 	if p == nil {
-		return fmt.Errorf("can't encode pollAnswer#6ca9c2e9 as nil")
+		return fmt.Errorf("can't encode pollAnswer#ff16e2ca as nil")
 	}
 	b.PutID(PollAnswerTypeID)
 	return p.EncodeBare(b)
@@ -135,9 +140,11 @@ func (p *PollAnswer) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (p *PollAnswer) EncodeBare(b *bin.Buffer) error {
 	if p == nil {
-		return fmt.Errorf("can't encode pollAnswer#6ca9c2e9 as nil")
+		return fmt.Errorf("can't encode pollAnswer#ff16e2ca as nil")
 	}
-	b.PutString(p.Text)
+	if err := p.Text.Encode(b); err != nil {
+		return fmt.Errorf("unable to encode pollAnswer#ff16e2ca: field text: %w", err)
+	}
 	b.PutBytes(p.Option)
 	return nil
 }
@@ -145,10 +152,10 @@ func (p *PollAnswer) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (p *PollAnswer) Decode(b *bin.Buffer) error {
 	if p == nil {
-		return fmt.Errorf("can't decode pollAnswer#6ca9c2e9 to nil")
+		return fmt.Errorf("can't decode pollAnswer#ff16e2ca to nil")
 	}
 	if err := b.ConsumeID(PollAnswerTypeID); err != nil {
-		return fmt.Errorf("unable to decode pollAnswer#6ca9c2e9: %w", err)
+		return fmt.Errorf("unable to decode pollAnswer#ff16e2ca: %w", err)
 	}
 	return p.DecodeBare(b)
 }
@@ -156,19 +163,17 @@ func (p *PollAnswer) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (p *PollAnswer) DecodeBare(b *bin.Buffer) error {
 	if p == nil {
-		return fmt.Errorf("can't decode pollAnswer#6ca9c2e9 to nil")
+		return fmt.Errorf("can't decode pollAnswer#ff16e2ca to nil")
 	}
 	{
-		value, err := b.String()
-		if err != nil {
-			return fmt.Errorf("unable to decode pollAnswer#6ca9c2e9: field text: %w", err)
+		if err := p.Text.Decode(b); err != nil {
+			return fmt.Errorf("unable to decode pollAnswer#ff16e2ca: field text: %w", err)
 		}
-		p.Text = value
 	}
 	{
 		value, err := b.Bytes()
 		if err != nil {
-			return fmt.Errorf("unable to decode pollAnswer#6ca9c2e9: field option: %w", err)
+			return fmt.Errorf("unable to decode pollAnswer#ff16e2ca: field option: %w", err)
 		}
 		p.Option = value
 	}
@@ -176,7 +181,7 @@ func (p *PollAnswer) DecodeBare(b *bin.Buffer) error {
 }
 
 // GetText returns value of Text field.
-func (p *PollAnswer) GetText() (value string) {
+func (p *PollAnswer) GetText() (value TextWithEntities) {
 	if p == nil {
 		return
 	}

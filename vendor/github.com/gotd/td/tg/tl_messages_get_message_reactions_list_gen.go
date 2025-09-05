@@ -48,12 +48,12 @@ type MessagesGetMessageReactionsListRequest struct {
 	Peer InputPeerClass
 	// Message ID
 	ID int
-	// Get only reactions of this type (UTF8 emoji)
+	// Get only reactions of this type
 	//
 	// Use SetReaction and GetReaction helpers.
 	Reaction ReactionClass
-	// Offset (typically taken from the next_offset field of the returned messages
-	// MessageReactionsList¹)
+	// Offset for pagination (taken from the next_offset field of the returned messages
+	// MessageReactionsList¹); empty in the first request.
 	//
 	// Links:
 	//  1) https://core.telegram.org/type/messages.MessageReactionsList
@@ -360,7 +360,7 @@ func (g *MessagesGetMessageReactionsListRequest) GetLimit() (value int) {
 //
 // Possible errors:
 //
-//	403 BROADCAST_FORBIDDEN: Participants of polls in channels should stay anonymous.
+//	403 BROADCAST_FORBIDDEN: Channel poll voters and reactions cannot be fetched to prevent deanonymization.
 //	400 MSG_ID_INVALID: Invalid message ID provided.
 //
 // See https://core.telegram.org/method/messages.getMessageReactionsList for reference.

@@ -61,7 +61,12 @@ type MessagesProlongWebViewRequest struct {
 	// Links:
 	//  1) https://core.telegram.org/method/messages.requestWebView
 	QueryID int64
-	// ReplyTo field of MessagesProlongWebViewRequest.
+	// If set, indicates that the inline message that will be sent by the bot on behalf of
+	// the user once the web app interaction is terminated¹ should be sent in reply to the
+	// specified message or story.
+	//
+	// Links:
+	//  1) https://core.telegram.org/method/messages.sendWebViewResultMessage
 	//
 	// Use SetReplyTo and GetReplyTo helpers.
 	ReplyTo InputReplyToClass
@@ -402,6 +407,10 @@ func (p *MessagesProlongWebViewRequest) GetSendAs() (value InputPeerClass, ok bo
 // MessagesProlongWebView invokes method messages.prolongWebView#b0d81a83 returning error if any.
 // Indicate to the server (from the user side) that the user is still using a web app.
 // If the method returns a QUERY_ID_INVALID error, the webview must be closed.
+//
+// Possible errors:
+//
+//	400 BOT_INVALID: This is not a valid bot.
 //
 // See https://core.telegram.org/method/messages.prolongWebView for reference.
 func (c *Client) MessagesProlongWebView(ctx context.Context, request *MessagesProlongWebViewRequest) (bool, error) {

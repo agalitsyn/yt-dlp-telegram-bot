@@ -203,9 +203,11 @@ func (d *ChatlistsDeleteExportedInviteRequest) GetSlug() (value string) {
 // Possible errors:
 //
 //	400 FILTER_ID_INVALID: The specified filter ID is invalid.
+//	400 FILTER_NOT_SUPPORTED: The specified filter cannot be used in this context.
+//	400 INVITE_SLUG_EXPIRED: The specified chat folder link has expired.
+//	400 INVITE_SLUG_INVALID: The specified invitation slug is invalid.
 //
 // See https://core.telegram.org/method/chatlists.deleteExportedInvite for reference.
-// Can be used by bots.
 func (c *Client) ChatlistsDeleteExportedInvite(ctx context.Context, request *ChatlistsDeleteExportedInviteRequest) (bool, error) {
 	var result BoolBox
 

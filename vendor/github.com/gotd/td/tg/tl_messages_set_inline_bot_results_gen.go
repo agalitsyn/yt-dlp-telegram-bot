@@ -66,10 +66,11 @@ type MessagesSetInlineBotResultsRequest struct {
 	// Use SetSwitchPm and GetSwitchPm helpers.
 	SwitchPm InlineBotSwitchPM
 	// If passed, clients will display a button on top of the remaining inline result list
-	// with the specified text, that switches the user to the specified bot web app¹.
+	// with the specified text, that switches the user to the specified inline mode mini
+	// app¹.
 	//
 	// Links:
-	//  1) https://core.telegram.org/api/bots/webapps#simple-web-apps
+	//  1) https://core.telegram.org/api/bots/webapps#inline-mode-mini-apps
 	//
 	// Use SetSwitchWebview and GetSwitchWebview helpers.
 	SwitchWebview InlineBotWebView
@@ -501,6 +502,7 @@ func (s *MessagesSetInlineBotResultsRequest) MapResults() (value InputBotInlineR
 //	400 MESSAGE_EMPTY: The provided message is empty.
 //	400 MESSAGE_TOO_LONG: The provided message is too long.
 //	400 NEXT_OFFSET_INVALID: The specified offset is longer than 64 bytes.
+//	400 PEER_TYPES_INVALID: The passed keyboardButtonSwitchInline.peer_types field is invalid.
 //	400 PHOTO_CONTENT_TYPE_INVALID: Photo mime-type invalid.
 //	400 PHOTO_CONTENT_URL_EMPTY: Photo URL invalid.
 //	400 PHOTO_INVALID: Photo invalid.
@@ -517,8 +519,11 @@ func (s *MessagesSetInlineBotResultsRequest) MapResults() (value InputBotInlineR
 //	400 START_PARAM_INVALID: Start parameter invalid.
 //	400 STICKER_DOCUMENT_INVALID: The specified sticker document is invalid.
 //	400 SWITCH_PM_TEXT_EMPTY: The switch_pm.text field was empty.
+//	400 SWITCH_WEBVIEW_URL_INVALID: The URL specified in switch_webview.url is invalid!
 //	400 URL_INVALID: Invalid URL provided.
 //	403 USER_BOT_INVALID: User accounts must provide the bot method parameter when calling this method. If there is no such method parameter, this method can only be invoked by bot accounts.
+//	400 USER_BOT_REQUIRED: This method can only be called by a bot.
+//	400 VIDEO_CONTENT_TYPE_INVALID: The video's content type is invalid.
 //	400 VIDEO_TITLE_EMPTY: The specified video title is empty.
 //	400 WEBDOCUMENT_INVALID: Invalid webdocument URL provided.
 //	400 WEBDOCUMENT_MIME_INVALID: Invalid webdocument mime type provided.

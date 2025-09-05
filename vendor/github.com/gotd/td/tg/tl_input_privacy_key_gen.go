@@ -32,7 +32,20 @@ var (
 )
 
 // InputPrivacyKeyStatusTimestamp represents TL type `inputPrivacyKeyStatusTimestamp#4f96cb18`.
-// Whether people will be able to see your exact last online timestamp
+// Whether people will be able to see our exact last online timestamp.
+// Note that if we decide to hide our exact last online timestamp to someone (i.e., users
+// A, B, C, or all users) and we do not have a Premium¹ subscription, we won't be able
+// to see the exact last online timestamp of those users (A, B, C, or all users), even if
+// those users do share it with us.
+// If those users do share their exact online status with us, but we can't see it due to
+// the reason mentioned above, the by_me flag of userStatusRecently¹,
+// userStatusLastWeek², userStatusLastMonth³ will be set.
+//
+// Links:
+//  1. https://core.telegram.org/api/premium
+//  2. https://core.telegram.org/constructor/userStatusRecently
+//  3. https://core.telegram.org/constructor/userStatusLastWeek
+//  4. https://core.telegram.org/constructor/userStatusLastMonth
 //
 // See https://core.telegram.org/constructor/inputPrivacyKeyStatusTimestamp for reference.
 type InputPrivacyKeyStatusTimestamp struct {
@@ -851,7 +864,10 @@ func (i *InputPrivacyKeyAddedByPhone) DecodeBare(b *bin.Buffer) error {
 }
 
 // InputPrivacyKeyVoiceMessages represents TL type `inputPrivacyKeyVoiceMessages#aee69d68`.
-// Whether people can send you voice messages
+// Whether people can send you voice messages or round videos (Premium¹ users only).
+//
+// Links:
+//  1. https://core.telegram.org/api/premium
 //
 // See https://core.telegram.org/constructor/inputPrivacyKeyVoiceMessages for reference.
 type InputPrivacyKeyVoiceMessages struct {
@@ -953,6 +969,7 @@ func (i *InputPrivacyKeyVoiceMessages) DecodeBare(b *bin.Buffer) error {
 }
 
 // InputPrivacyKeyAbout represents TL type `inputPrivacyKeyAbout#3823cc40`.
+// Whether people can see your bio
 //
 // See https://core.telegram.org/constructor/inputPrivacyKeyAbout for reference.
 type InputPrivacyKeyAbout struct {
@@ -1053,12 +1070,335 @@ func (i *InputPrivacyKeyAbout) DecodeBare(b *bin.Buffer) error {
 	return nil
 }
 
+// InputPrivacyKeyBirthday represents TL type `inputPrivacyKeyBirthday#d65a11cc`.
+// Whether the user can see our birthday.
+//
+// See https://core.telegram.org/constructor/inputPrivacyKeyBirthday for reference.
+type InputPrivacyKeyBirthday struct {
+}
+
+// InputPrivacyKeyBirthdayTypeID is TL type id of InputPrivacyKeyBirthday.
+const InputPrivacyKeyBirthdayTypeID = 0xd65a11cc
+
+// construct implements constructor of InputPrivacyKeyClass.
+func (i InputPrivacyKeyBirthday) construct() InputPrivacyKeyClass { return &i }
+
+// Ensuring interfaces in compile-time for InputPrivacyKeyBirthday.
+var (
+	_ bin.Encoder     = &InputPrivacyKeyBirthday{}
+	_ bin.Decoder     = &InputPrivacyKeyBirthday{}
+	_ bin.BareEncoder = &InputPrivacyKeyBirthday{}
+	_ bin.BareDecoder = &InputPrivacyKeyBirthday{}
+
+	_ InputPrivacyKeyClass = &InputPrivacyKeyBirthday{}
+)
+
+func (i *InputPrivacyKeyBirthday) Zero() bool {
+	if i == nil {
+		return true
+	}
+
+	return true
+}
+
+// String implements fmt.Stringer.
+func (i *InputPrivacyKeyBirthday) String() string {
+	if i == nil {
+		return "InputPrivacyKeyBirthday(nil)"
+	}
+	type Alias InputPrivacyKeyBirthday
+	return fmt.Sprintf("InputPrivacyKeyBirthday%+v", Alias(*i))
+}
+
+// TypeID returns type id in TL schema.
+//
+// See https://core.telegram.org/mtproto/TL-tl#remarks.
+func (*InputPrivacyKeyBirthday) TypeID() uint32 {
+	return InputPrivacyKeyBirthdayTypeID
+}
+
+// TypeName returns name of type in TL schema.
+func (*InputPrivacyKeyBirthday) TypeName() string {
+	return "inputPrivacyKeyBirthday"
+}
+
+// TypeInfo returns info about TL type.
+func (i *InputPrivacyKeyBirthday) TypeInfo() tdp.Type {
+	typ := tdp.Type{
+		Name: "inputPrivacyKeyBirthday",
+		ID:   InputPrivacyKeyBirthdayTypeID,
+	}
+	if i == nil {
+		typ.Null = true
+		return typ
+	}
+	typ.Fields = []tdp.Field{}
+	return typ
+}
+
+// Encode implements bin.Encoder.
+func (i *InputPrivacyKeyBirthday) Encode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyBirthday#d65a11cc as nil")
+	}
+	b.PutID(InputPrivacyKeyBirthdayTypeID)
+	return i.EncodeBare(b)
+}
+
+// EncodeBare implements bin.BareEncoder.
+func (i *InputPrivacyKeyBirthday) EncodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyBirthday#d65a11cc as nil")
+	}
+	return nil
+}
+
+// Decode implements bin.Decoder.
+func (i *InputPrivacyKeyBirthday) Decode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyBirthday#d65a11cc to nil")
+	}
+	if err := b.ConsumeID(InputPrivacyKeyBirthdayTypeID); err != nil {
+		return fmt.Errorf("unable to decode inputPrivacyKeyBirthday#d65a11cc: %w", err)
+	}
+	return i.DecodeBare(b)
+}
+
+// DecodeBare implements bin.BareDecoder.
+func (i *InputPrivacyKeyBirthday) DecodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyBirthday#d65a11cc to nil")
+	}
+	return nil
+}
+
+// InputPrivacyKeyStarGiftsAutoSave represents TL type `inputPrivacyKeyStarGiftsAutoSave#e1732341`.
+// Whether received gifts¹ will be automatically displayed on our profile
+//
+// Links:
+//  1. https://core.telegram.org/api/gifts
+//
+// See https://core.telegram.org/constructor/inputPrivacyKeyStarGiftsAutoSave for reference.
+type InputPrivacyKeyStarGiftsAutoSave struct {
+}
+
+// InputPrivacyKeyStarGiftsAutoSaveTypeID is TL type id of InputPrivacyKeyStarGiftsAutoSave.
+const InputPrivacyKeyStarGiftsAutoSaveTypeID = 0xe1732341
+
+// construct implements constructor of InputPrivacyKeyClass.
+func (i InputPrivacyKeyStarGiftsAutoSave) construct() InputPrivacyKeyClass { return &i }
+
+// Ensuring interfaces in compile-time for InputPrivacyKeyStarGiftsAutoSave.
+var (
+	_ bin.Encoder     = &InputPrivacyKeyStarGiftsAutoSave{}
+	_ bin.Decoder     = &InputPrivacyKeyStarGiftsAutoSave{}
+	_ bin.BareEncoder = &InputPrivacyKeyStarGiftsAutoSave{}
+	_ bin.BareDecoder = &InputPrivacyKeyStarGiftsAutoSave{}
+
+	_ InputPrivacyKeyClass = &InputPrivacyKeyStarGiftsAutoSave{}
+)
+
+func (i *InputPrivacyKeyStarGiftsAutoSave) Zero() bool {
+	if i == nil {
+		return true
+	}
+
+	return true
+}
+
+// String implements fmt.Stringer.
+func (i *InputPrivacyKeyStarGiftsAutoSave) String() string {
+	if i == nil {
+		return "InputPrivacyKeyStarGiftsAutoSave(nil)"
+	}
+	type Alias InputPrivacyKeyStarGiftsAutoSave
+	return fmt.Sprintf("InputPrivacyKeyStarGiftsAutoSave%+v", Alias(*i))
+}
+
+// TypeID returns type id in TL schema.
+//
+// See https://core.telegram.org/mtproto/TL-tl#remarks.
+func (*InputPrivacyKeyStarGiftsAutoSave) TypeID() uint32 {
+	return InputPrivacyKeyStarGiftsAutoSaveTypeID
+}
+
+// TypeName returns name of type in TL schema.
+func (*InputPrivacyKeyStarGiftsAutoSave) TypeName() string {
+	return "inputPrivacyKeyStarGiftsAutoSave"
+}
+
+// TypeInfo returns info about TL type.
+func (i *InputPrivacyKeyStarGiftsAutoSave) TypeInfo() tdp.Type {
+	typ := tdp.Type{
+		Name: "inputPrivacyKeyStarGiftsAutoSave",
+		ID:   InputPrivacyKeyStarGiftsAutoSaveTypeID,
+	}
+	if i == nil {
+		typ.Null = true
+		return typ
+	}
+	typ.Fields = []tdp.Field{}
+	return typ
+}
+
+// Encode implements bin.Encoder.
+func (i *InputPrivacyKeyStarGiftsAutoSave) Encode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyStarGiftsAutoSave#e1732341 as nil")
+	}
+	b.PutID(InputPrivacyKeyStarGiftsAutoSaveTypeID)
+	return i.EncodeBare(b)
+}
+
+// EncodeBare implements bin.BareEncoder.
+func (i *InputPrivacyKeyStarGiftsAutoSave) EncodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyStarGiftsAutoSave#e1732341 as nil")
+	}
+	return nil
+}
+
+// Decode implements bin.Decoder.
+func (i *InputPrivacyKeyStarGiftsAutoSave) Decode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyStarGiftsAutoSave#e1732341 to nil")
+	}
+	if err := b.ConsumeID(InputPrivacyKeyStarGiftsAutoSaveTypeID); err != nil {
+		return fmt.Errorf("unable to decode inputPrivacyKeyStarGiftsAutoSave#e1732341: %w", err)
+	}
+	return i.DecodeBare(b)
+}
+
+// DecodeBare implements bin.BareDecoder.
+func (i *InputPrivacyKeyStarGiftsAutoSave) DecodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyStarGiftsAutoSave#e1732341 to nil")
+	}
+	return nil
+}
+
+// InputPrivacyKeyNoPaidMessages represents TL type `inputPrivacyKeyNoPaidMessages#bdc597b4`.
+//
+// See https://core.telegram.org/constructor/inputPrivacyKeyNoPaidMessages for reference.
+type InputPrivacyKeyNoPaidMessages struct {
+}
+
+// InputPrivacyKeyNoPaidMessagesTypeID is TL type id of InputPrivacyKeyNoPaidMessages.
+const InputPrivacyKeyNoPaidMessagesTypeID = 0xbdc597b4
+
+// construct implements constructor of InputPrivacyKeyClass.
+func (i InputPrivacyKeyNoPaidMessages) construct() InputPrivacyKeyClass { return &i }
+
+// Ensuring interfaces in compile-time for InputPrivacyKeyNoPaidMessages.
+var (
+	_ bin.Encoder     = &InputPrivacyKeyNoPaidMessages{}
+	_ bin.Decoder     = &InputPrivacyKeyNoPaidMessages{}
+	_ bin.BareEncoder = &InputPrivacyKeyNoPaidMessages{}
+	_ bin.BareDecoder = &InputPrivacyKeyNoPaidMessages{}
+
+	_ InputPrivacyKeyClass = &InputPrivacyKeyNoPaidMessages{}
+)
+
+func (i *InputPrivacyKeyNoPaidMessages) Zero() bool {
+	if i == nil {
+		return true
+	}
+
+	return true
+}
+
+// String implements fmt.Stringer.
+func (i *InputPrivacyKeyNoPaidMessages) String() string {
+	if i == nil {
+		return "InputPrivacyKeyNoPaidMessages(nil)"
+	}
+	type Alias InputPrivacyKeyNoPaidMessages
+	return fmt.Sprintf("InputPrivacyKeyNoPaidMessages%+v", Alias(*i))
+}
+
+// TypeID returns type id in TL schema.
+//
+// See https://core.telegram.org/mtproto/TL-tl#remarks.
+func (*InputPrivacyKeyNoPaidMessages) TypeID() uint32 {
+	return InputPrivacyKeyNoPaidMessagesTypeID
+}
+
+// TypeName returns name of type in TL schema.
+func (*InputPrivacyKeyNoPaidMessages) TypeName() string {
+	return "inputPrivacyKeyNoPaidMessages"
+}
+
+// TypeInfo returns info about TL type.
+func (i *InputPrivacyKeyNoPaidMessages) TypeInfo() tdp.Type {
+	typ := tdp.Type{
+		Name: "inputPrivacyKeyNoPaidMessages",
+		ID:   InputPrivacyKeyNoPaidMessagesTypeID,
+	}
+	if i == nil {
+		typ.Null = true
+		return typ
+	}
+	typ.Fields = []tdp.Field{}
+	return typ
+}
+
+// Encode implements bin.Encoder.
+func (i *InputPrivacyKeyNoPaidMessages) Encode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyNoPaidMessages#bdc597b4 as nil")
+	}
+	b.PutID(InputPrivacyKeyNoPaidMessagesTypeID)
+	return i.EncodeBare(b)
+}
+
+// EncodeBare implements bin.BareEncoder.
+func (i *InputPrivacyKeyNoPaidMessages) EncodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputPrivacyKeyNoPaidMessages#bdc597b4 as nil")
+	}
+	return nil
+}
+
+// Decode implements bin.Decoder.
+func (i *InputPrivacyKeyNoPaidMessages) Decode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyNoPaidMessages#bdc597b4 to nil")
+	}
+	if err := b.ConsumeID(InputPrivacyKeyNoPaidMessagesTypeID); err != nil {
+		return fmt.Errorf("unable to decode inputPrivacyKeyNoPaidMessages#bdc597b4: %w", err)
+	}
+	return i.DecodeBare(b)
+}
+
+// DecodeBare implements bin.BareDecoder.
+func (i *InputPrivacyKeyNoPaidMessages) DecodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputPrivacyKeyNoPaidMessages#bdc597b4 to nil")
+	}
+	return nil
+}
+
 // InputPrivacyKeyClassName is schema name of InputPrivacyKeyClass.
 const InputPrivacyKeyClassName = "InputPrivacyKey"
 
 // InputPrivacyKeyClass represents InputPrivacyKey generic type.
 //
 // See https://core.telegram.org/type/InputPrivacyKey for reference.
+//
+// Constructors:
+//   - [InputPrivacyKeyStatusTimestamp]
+//   - [InputPrivacyKeyChatInvite]
+//   - [InputPrivacyKeyPhoneCall]
+//   - [InputPrivacyKeyPhoneP2P]
+//   - [InputPrivacyKeyForwards]
+//   - [InputPrivacyKeyProfilePhoto]
+//   - [InputPrivacyKeyPhoneNumber]
+//   - [InputPrivacyKeyAddedByPhone]
+//   - [InputPrivacyKeyVoiceMessages]
+//   - [InputPrivacyKeyAbout]
+//   - [InputPrivacyKeyBirthday]
+//   - [InputPrivacyKeyStarGiftsAutoSave]
+//   - [InputPrivacyKeyNoPaidMessages]
 //
 // Example:
 //
@@ -1077,6 +1417,9 @@ const InputPrivacyKeyClassName = "InputPrivacyKey"
 //	case *tg.InputPrivacyKeyAddedByPhone: // inputPrivacyKeyAddedByPhone#d1219bdd
 //	case *tg.InputPrivacyKeyVoiceMessages: // inputPrivacyKeyVoiceMessages#aee69d68
 //	case *tg.InputPrivacyKeyAbout: // inputPrivacyKeyAbout#3823cc40
+//	case *tg.InputPrivacyKeyBirthday: // inputPrivacyKeyBirthday#d65a11cc
+//	case *tg.InputPrivacyKeyStarGiftsAutoSave: // inputPrivacyKeyStarGiftsAutoSave#e1732341
+//	case *tg.InputPrivacyKeyNoPaidMessages: // inputPrivacyKeyNoPaidMessages#bdc597b4
 //	default: panic(v)
 //	}
 type InputPrivacyKeyClass interface {
@@ -1171,6 +1514,27 @@ func DecodeInputPrivacyKey(buf *bin.Buffer) (InputPrivacyKeyClass, error) {
 	case InputPrivacyKeyAboutTypeID:
 		// Decoding inputPrivacyKeyAbout#3823cc40.
 		v := InputPrivacyKeyAbout{}
+		if err := v.Decode(buf); err != nil {
+			return nil, fmt.Errorf("unable to decode InputPrivacyKeyClass: %w", err)
+		}
+		return &v, nil
+	case InputPrivacyKeyBirthdayTypeID:
+		// Decoding inputPrivacyKeyBirthday#d65a11cc.
+		v := InputPrivacyKeyBirthday{}
+		if err := v.Decode(buf); err != nil {
+			return nil, fmt.Errorf("unable to decode InputPrivacyKeyClass: %w", err)
+		}
+		return &v, nil
+	case InputPrivacyKeyStarGiftsAutoSaveTypeID:
+		// Decoding inputPrivacyKeyStarGiftsAutoSave#e1732341.
+		v := InputPrivacyKeyStarGiftsAutoSave{}
+		if err := v.Decode(buf); err != nil {
+			return nil, fmt.Errorf("unable to decode InputPrivacyKeyClass: %w", err)
+		}
+		return &v, nil
+	case InputPrivacyKeyNoPaidMessagesTypeID:
+		// Decoding inputPrivacyKeyNoPaidMessages#bdc597b4.
+		v := InputPrivacyKeyNoPaidMessages{}
 		if err := v.Decode(buf); err != nil {
 			return nil, fmt.Errorf("unable to decode InputPrivacyKeyClass: %w", err)
 		}

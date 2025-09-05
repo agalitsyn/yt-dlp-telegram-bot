@@ -31,16 +31,22 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// StoriesDeleteStoriesRequest represents TL type `stories.deleteStories#b5d501d7`.
+// StoriesDeleteStoriesRequest represents TL type `stories.deleteStories#ae59db5f`.
+// Deletes some posted stories¹.
+//
+// Links:
+//  1. https://core.telegram.org/api/stories
 //
 // See https://core.telegram.org/method/stories.deleteStories for reference.
 type StoriesDeleteStoriesRequest struct {
-	// ID field of StoriesDeleteStoriesRequest.
+	// Channel/user from where to delete stories.
+	Peer InputPeerClass
+	// IDs of stories to delete.
 	ID []int
 }
 
 // StoriesDeleteStoriesRequestTypeID is TL type id of StoriesDeleteStoriesRequest.
-const StoriesDeleteStoriesRequestTypeID = 0xb5d501d7
+const StoriesDeleteStoriesRequestTypeID = 0xae59db5f
 
 // Ensuring interfaces in compile-time for StoriesDeleteStoriesRequest.
 var (
@@ -53,6 +59,9 @@ var (
 func (d *StoriesDeleteStoriesRequest) Zero() bool {
 	if d == nil {
 		return true
+	}
+	if !(d.Peer == nil) {
+		return false
 	}
 	if !(d.ID == nil) {
 		return false
@@ -72,8 +81,10 @@ func (d *StoriesDeleteStoriesRequest) String() string {
 
 // FillFrom fills StoriesDeleteStoriesRequest from given interface.
 func (d *StoriesDeleteStoriesRequest) FillFrom(from interface {
+	GetPeer() (value InputPeerClass)
 	GetID() (value []int)
 }) {
+	d.Peer = from.GetPeer()
 	d.ID = from.GetID()
 }
 
@@ -101,6 +112,10 @@ func (d *StoriesDeleteStoriesRequest) TypeInfo() tdp.Type {
 	}
 	typ.Fields = []tdp.Field{
 		{
+			Name:       "Peer",
+			SchemaName: "peer",
+		},
+		{
 			Name:       "ID",
 			SchemaName: "id",
 		},
@@ -111,7 +126,7 @@ func (d *StoriesDeleteStoriesRequest) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (d *StoriesDeleteStoriesRequest) Encode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode stories.deleteStories#b5d501d7 as nil")
+		return fmt.Errorf("can't encode stories.deleteStories#ae59db5f as nil")
 	}
 	b.PutID(StoriesDeleteStoriesRequestTypeID)
 	return d.EncodeBare(b)
@@ -120,7 +135,13 @@ func (d *StoriesDeleteStoriesRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (d *StoriesDeleteStoriesRequest) EncodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode stories.deleteStories#b5d501d7 as nil")
+		return fmt.Errorf("can't encode stories.deleteStories#ae59db5f as nil")
+	}
+	if d.Peer == nil {
+		return fmt.Errorf("unable to encode stories.deleteStories#ae59db5f: field peer is nil")
+	}
+	if err := d.Peer.Encode(b); err != nil {
+		return fmt.Errorf("unable to encode stories.deleteStories#ae59db5f: field peer: %w", err)
 	}
 	b.PutVectorHeader(len(d.ID))
 	for _, v := range d.ID {
@@ -132,10 +153,10 @@ func (d *StoriesDeleteStoriesRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (d *StoriesDeleteStoriesRequest) Decode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode stories.deleteStories#b5d501d7 to nil")
+		return fmt.Errorf("can't decode stories.deleteStories#ae59db5f to nil")
 	}
 	if err := b.ConsumeID(StoriesDeleteStoriesRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode stories.deleteStories#b5d501d7: %w", err)
+		return fmt.Errorf("unable to decode stories.deleteStories#ae59db5f: %w", err)
 	}
 	return d.DecodeBare(b)
 }
@@ -143,12 +164,19 @@ func (d *StoriesDeleteStoriesRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (d *StoriesDeleteStoriesRequest) DecodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode stories.deleteStories#b5d501d7 to nil")
+		return fmt.Errorf("can't decode stories.deleteStories#ae59db5f to nil")
+	}
+	{
+		value, err := DecodeInputPeer(b)
+		if err != nil {
+			return fmt.Errorf("unable to decode stories.deleteStories#ae59db5f: field peer: %w", err)
+		}
+		d.Peer = value
 	}
 	{
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.deleteStories#b5d501d7: field id: %w", err)
+			return fmt.Errorf("unable to decode stories.deleteStories#ae59db5f: field id: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -157,12 +185,20 @@ func (d *StoriesDeleteStoriesRequest) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			value, err := b.Int()
 			if err != nil {
-				return fmt.Errorf("unable to decode stories.deleteStories#b5d501d7: field id: %w", err)
+				return fmt.Errorf("unable to decode stories.deleteStories#ae59db5f: field id: %w", err)
 			}
 			d.ID = append(d.ID, value)
 		}
 	}
 	return nil
+}
+
+// GetPeer returns value of Peer field.
+func (d *StoriesDeleteStoriesRequest) GetPeer() (value InputPeerClass) {
+	if d == nil {
+		return
+	}
+	return d.Peer
 }
 
 // GetID returns value of ID field.
@@ -173,15 +209,21 @@ func (d *StoriesDeleteStoriesRequest) GetID() (value []int) {
 	return d.ID
 }
 
-// StoriesDeleteStories invokes method stories.deleteStories#b5d501d7 returning error if any.
+// StoriesDeleteStories invokes method stories.deleteStories#ae59db5f returning error if any.
+// Deletes some posted stories¹.
+//
+// Links:
+//  1. https://core.telegram.org/api/stories
+//
+// Possible errors:
+//
+//	400 PEER_ID_INVALID: The provided peer id is invalid.
+//	400 STORY_ID_EMPTY: You specified no story IDs.
 //
 // See https://core.telegram.org/method/stories.deleteStories for reference.
-func (c *Client) StoriesDeleteStories(ctx context.Context, id []int) ([]int, error) {
+func (c *Client) StoriesDeleteStories(ctx context.Context, request *StoriesDeleteStoriesRequest) ([]int, error) {
 	var result IntVector
 
-	request := &StoriesDeleteStoriesRequest{
-		ID: id,
-	}
 	if err := c.rpc.Invoke(ctx, request, &result); err != nil {
 		return nil, err
 	}

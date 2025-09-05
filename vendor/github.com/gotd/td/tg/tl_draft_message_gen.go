@@ -208,7 +208,7 @@ func (d *DraftMessageEmpty) GetDate() (value int, ok bool) {
 	return d.Date, true
 }
 
-// DraftMessage represents TL type `draftMessage#fd8e711f`.
+// DraftMessage represents TL type `draftMessage#96eaa5eb`.
 // Represents a message draft¹.
 //
 // Links:
@@ -223,10 +223,14 @@ type DraftMessage struct {
 	Flags bin.Fields
 	// Whether no webpage preview will be generated
 	NoWebpage bool
-	// The message this message will reply to
+	// If set, any eventual webpage preview will be shown on top of the message instead of at
+	// the bottom.
+	InvertMedia bool
+	// If set, indicates that the message should be sent in reply to the specified message or
+	// story.
 	//
-	// Use SetReplyToMsgID and GetReplyToMsgID helpers.
-	ReplyToMsgID int
+	// Use SetReplyTo and GetReplyTo helpers.
+	ReplyTo InputReplyToClass
 	// The draft
 	Message string
 	// Message entities¹ for styled text.
@@ -236,12 +240,27 @@ type DraftMessage struct {
 	//
 	// Use SetEntities and GetEntities helpers.
 	Entities []MessageEntityClass
+	// Media.
+	//
+	// Use SetMedia and GetMedia helpers.
+	Media InputMediaClass
 	// Date of last update of the draft.
 	Date int
+	// A message effect that should be played as specified here »¹.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/effects
+	//
+	// Use SetEffect and GetEffect helpers.
+	Effect int64
+	// SuggestedPost field of DraftMessage.
+	//
+	// Use SetSuggestedPost and GetSuggestedPost helpers.
+	SuggestedPost SuggestedPost
 }
 
 // DraftMessageTypeID is TL type id of DraftMessage.
-const DraftMessageTypeID = 0xfd8e711f
+const DraftMessageTypeID = 0x96eaa5eb
 
 // construct implements constructor of DraftMessageClass.
 func (d DraftMessage) construct() DraftMessageClass { return &d }
@@ -266,7 +285,10 @@ func (d *DraftMessage) Zero() bool {
 	if !(d.NoWebpage == false) {
 		return false
 	}
-	if !(d.ReplyToMsgID == 0) {
+	if !(d.InvertMedia == false) {
+		return false
+	}
+	if !(d.ReplyTo == nil) {
 		return false
 	}
 	if !(d.Message == "") {
@@ -275,7 +297,16 @@ func (d *DraftMessage) Zero() bool {
 	if !(d.Entities == nil) {
 		return false
 	}
+	if !(d.Media == nil) {
+		return false
+	}
 	if !(d.Date == 0) {
+		return false
+	}
+	if !(d.Effect == 0) {
+		return false
+	}
+	if !(d.SuggestedPost.Zero()) {
 		return false
 	}
 
@@ -294,14 +325,19 @@ func (d *DraftMessage) String() string {
 // FillFrom fills DraftMessage from given interface.
 func (d *DraftMessage) FillFrom(from interface {
 	GetNoWebpage() (value bool)
-	GetReplyToMsgID() (value int, ok bool)
+	GetInvertMedia() (value bool)
+	GetReplyTo() (value InputReplyToClass, ok bool)
 	GetMessage() (value string)
 	GetEntities() (value []MessageEntityClass, ok bool)
+	GetMedia() (value InputMediaClass, ok bool)
 	GetDate() (value int)
+	GetEffect() (value int64, ok bool)
+	GetSuggestedPost() (value SuggestedPost, ok bool)
 }) {
 	d.NoWebpage = from.GetNoWebpage()
-	if val, ok := from.GetReplyToMsgID(); ok {
-		d.ReplyToMsgID = val
+	d.InvertMedia = from.GetInvertMedia()
+	if val, ok := from.GetReplyTo(); ok {
+		d.ReplyTo = val
 	}
 
 	d.Message = from.GetMessage()
@@ -309,7 +345,19 @@ func (d *DraftMessage) FillFrom(from interface {
 		d.Entities = val
 	}
 
+	if val, ok := from.GetMedia(); ok {
+		d.Media = val
+	}
+
 	d.Date = from.GetDate()
+	if val, ok := from.GetEffect(); ok {
+		d.Effect = val
+	}
+
+	if val, ok := from.GetSuggestedPost(); ok {
+		d.SuggestedPost = val
+	}
+
 }
 
 // TypeID returns type id in TL schema.
@@ -341,9 +389,14 @@ func (d *DraftMessage) TypeInfo() tdp.Type {
 			Null:       !d.Flags.Has(1),
 		},
 		{
-			Name:       "ReplyToMsgID",
-			SchemaName: "reply_to_msg_id",
-			Null:       !d.Flags.Has(0),
+			Name:       "InvertMedia",
+			SchemaName: "invert_media",
+			Null:       !d.Flags.Has(6),
+		},
+		{
+			Name:       "ReplyTo",
+			SchemaName: "reply_to",
+			Null:       !d.Flags.Has(4),
 		},
 		{
 			Name:       "Message",
@@ -355,8 +408,23 @@ func (d *DraftMessage) TypeInfo() tdp.Type {
 			Null:       !d.Flags.Has(3),
 		},
 		{
+			Name:       "Media",
+			SchemaName: "media",
+			Null:       !d.Flags.Has(5),
+		},
+		{
 			Name:       "Date",
 			SchemaName: "date",
+		},
+		{
+			Name:       "Effect",
+			SchemaName: "effect",
+			Null:       !d.Flags.Has(7),
+		},
+		{
+			Name:       "SuggestedPost",
+			SchemaName: "suggested_post",
+			Null:       !d.Flags.Has(8),
 		},
 	}
 	return typ
@@ -367,18 +435,30 @@ func (d *DraftMessage) SetFlags() {
 	if !(d.NoWebpage == false) {
 		d.Flags.Set(1)
 	}
-	if !(d.ReplyToMsgID == 0) {
-		d.Flags.Set(0)
+	if !(d.InvertMedia == false) {
+		d.Flags.Set(6)
+	}
+	if !(d.ReplyTo == nil) {
+		d.Flags.Set(4)
 	}
 	if !(d.Entities == nil) {
 		d.Flags.Set(3)
+	}
+	if !(d.Media == nil) {
+		d.Flags.Set(5)
+	}
+	if !(d.Effect == 0) {
+		d.Flags.Set(7)
+	}
+	if !(d.SuggestedPost.Zero()) {
+		d.Flags.Set(8)
 	}
 }
 
 // Encode implements bin.Encoder.
 func (d *DraftMessage) Encode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode draftMessage#fd8e711f as nil")
+		return fmt.Errorf("can't encode draftMessage#96eaa5eb as nil")
 	}
 	b.PutID(DraftMessageTypeID)
 	return d.EncodeBare(b)
@@ -387,38 +467,59 @@ func (d *DraftMessage) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (d *DraftMessage) EncodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode draftMessage#fd8e711f as nil")
+		return fmt.Errorf("can't encode draftMessage#96eaa5eb as nil")
 	}
 	d.SetFlags()
 	if err := d.Flags.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode draftMessage#fd8e711f: field flags: %w", err)
+		return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field flags: %w", err)
 	}
-	if d.Flags.Has(0) {
-		b.PutInt(d.ReplyToMsgID)
+	if d.Flags.Has(4) {
+		if d.ReplyTo == nil {
+			return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field reply_to is nil")
+		}
+		if err := d.ReplyTo.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field reply_to: %w", err)
+		}
 	}
 	b.PutString(d.Message)
 	if d.Flags.Has(3) {
 		b.PutVectorHeader(len(d.Entities))
 		for idx, v := range d.Entities {
 			if v == nil {
-				return fmt.Errorf("unable to encode draftMessage#fd8e711f: field entities element with index %d is nil", idx)
+				return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field entities element with index %d is nil", idx)
 			}
 			if err := v.Encode(b); err != nil {
-				return fmt.Errorf("unable to encode draftMessage#fd8e711f: field entities element with index %d: %w", idx, err)
+				return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field entities element with index %d: %w", idx, err)
 			}
 		}
 	}
+	if d.Flags.Has(5) {
+		if d.Media == nil {
+			return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field media is nil")
+		}
+		if err := d.Media.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field media: %w", err)
+		}
+	}
 	b.PutInt(d.Date)
+	if d.Flags.Has(7) {
+		b.PutLong(d.Effect)
+	}
+	if d.Flags.Has(8) {
+		if err := d.SuggestedPost.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode draftMessage#96eaa5eb: field suggested_post: %w", err)
+		}
+	}
 	return nil
 }
 
 // Decode implements bin.Decoder.
 func (d *DraftMessage) Decode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode draftMessage#fd8e711f to nil")
+		return fmt.Errorf("can't decode draftMessage#96eaa5eb to nil")
 	}
 	if err := b.ConsumeID(DraftMessageTypeID); err != nil {
-		return fmt.Errorf("unable to decode draftMessage#fd8e711f: %w", err)
+		return fmt.Errorf("unable to decode draftMessage#96eaa5eb: %w", err)
 	}
 	return d.DecodeBare(b)
 }
@@ -426,32 +527,33 @@ func (d *DraftMessage) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (d *DraftMessage) DecodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode draftMessage#fd8e711f to nil")
+		return fmt.Errorf("can't decode draftMessage#96eaa5eb to nil")
 	}
 	{
 		if err := d.Flags.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode draftMessage#fd8e711f: field flags: %w", err)
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field flags: %w", err)
 		}
 	}
 	d.NoWebpage = d.Flags.Has(1)
-	if d.Flags.Has(0) {
-		value, err := b.Int()
+	d.InvertMedia = d.Flags.Has(6)
+	if d.Flags.Has(4) {
+		value, err := DecodeInputReplyTo(b)
 		if err != nil {
-			return fmt.Errorf("unable to decode draftMessage#fd8e711f: field reply_to_msg_id: %w", err)
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field reply_to: %w", err)
 		}
-		d.ReplyToMsgID = value
+		d.ReplyTo = value
 	}
 	{
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode draftMessage#fd8e711f: field message: %w", err)
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field message: %w", err)
 		}
 		d.Message = value
 	}
 	if d.Flags.Has(3) {
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode draftMessage#fd8e711f: field entities: %w", err)
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field entities: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -460,17 +562,36 @@ func (d *DraftMessage) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			value, err := DecodeMessageEntity(b)
 			if err != nil {
-				return fmt.Errorf("unable to decode draftMessage#fd8e711f: field entities: %w", err)
+				return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field entities: %w", err)
 			}
 			d.Entities = append(d.Entities, value)
 		}
 	}
+	if d.Flags.Has(5) {
+		value, err := DecodeInputMedia(b)
+		if err != nil {
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field media: %w", err)
+		}
+		d.Media = value
+	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode draftMessage#fd8e711f: field date: %w", err)
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field date: %w", err)
 		}
 		d.Date = value
+	}
+	if d.Flags.Has(7) {
+		value, err := b.Long()
+		if err != nil {
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field effect: %w", err)
+		}
+		d.Effect = value
+	}
+	if d.Flags.Has(8) {
+		if err := d.SuggestedPost.Decode(b); err != nil {
+			return fmt.Errorf("unable to decode draftMessage#96eaa5eb: field suggested_post: %w", err)
+		}
 	}
 	return nil
 }
@@ -494,22 +615,41 @@ func (d *DraftMessage) GetNoWebpage() (value bool) {
 	return d.Flags.Has(1)
 }
 
-// SetReplyToMsgID sets value of ReplyToMsgID conditional field.
-func (d *DraftMessage) SetReplyToMsgID(value int) {
-	d.Flags.Set(0)
-	d.ReplyToMsgID = value
+// SetInvertMedia sets value of InvertMedia conditional field.
+func (d *DraftMessage) SetInvertMedia(value bool) {
+	if value {
+		d.Flags.Set(6)
+		d.InvertMedia = true
+	} else {
+		d.Flags.Unset(6)
+		d.InvertMedia = false
+	}
 }
 
-// GetReplyToMsgID returns value of ReplyToMsgID conditional field and
-// boolean which is true if field was set.
-func (d *DraftMessage) GetReplyToMsgID() (value int, ok bool) {
+// GetInvertMedia returns value of InvertMedia conditional field.
+func (d *DraftMessage) GetInvertMedia() (value bool) {
 	if d == nil {
 		return
 	}
-	if !d.Flags.Has(0) {
+	return d.Flags.Has(6)
+}
+
+// SetReplyTo sets value of ReplyTo conditional field.
+func (d *DraftMessage) SetReplyTo(value InputReplyToClass) {
+	d.Flags.Set(4)
+	d.ReplyTo = value
+}
+
+// GetReplyTo returns value of ReplyTo conditional field and
+// boolean which is true if field was set.
+func (d *DraftMessage) GetReplyTo() (value InputReplyToClass, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(4) {
 		return value, false
 	}
-	return d.ReplyToMsgID, true
+	return d.ReplyTo, true
 }
 
 // GetMessage returns value of Message field.
@@ -538,12 +678,66 @@ func (d *DraftMessage) GetEntities() (value []MessageEntityClass, ok bool) {
 	return d.Entities, true
 }
 
+// SetMedia sets value of Media conditional field.
+func (d *DraftMessage) SetMedia(value InputMediaClass) {
+	d.Flags.Set(5)
+	d.Media = value
+}
+
+// GetMedia returns value of Media conditional field and
+// boolean which is true if field was set.
+func (d *DraftMessage) GetMedia() (value InputMediaClass, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(5) {
+		return value, false
+	}
+	return d.Media, true
+}
+
 // GetDate returns value of Date field.
 func (d *DraftMessage) GetDate() (value int) {
 	if d == nil {
 		return
 	}
 	return d.Date
+}
+
+// SetEffect sets value of Effect conditional field.
+func (d *DraftMessage) SetEffect(value int64) {
+	d.Flags.Set(7)
+	d.Effect = value
+}
+
+// GetEffect returns value of Effect conditional field and
+// boolean which is true if field was set.
+func (d *DraftMessage) GetEffect() (value int64, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(7) {
+		return value, false
+	}
+	return d.Effect, true
+}
+
+// SetSuggestedPost sets value of SuggestedPost conditional field.
+func (d *DraftMessage) SetSuggestedPost(value SuggestedPost) {
+	d.Flags.Set(8)
+	d.SuggestedPost = value
+}
+
+// GetSuggestedPost returns value of SuggestedPost conditional field and
+// boolean which is true if field was set.
+func (d *DraftMessage) GetSuggestedPost() (value SuggestedPost, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(8) {
+		return value, false
+	}
+	return d.SuggestedPost, true
 }
 
 // MapEntities returns field Entities wrapped in MessageEntityClassArray helper.
@@ -561,6 +755,10 @@ const DraftMessageClassName = "DraftMessage"
 //
 // See https://core.telegram.org/type/DraftMessage for reference.
 //
+// Constructors:
+//   - [DraftMessageEmpty]
+//   - [DraftMessage]
+//
 // Example:
 //
 //	g, err := tg.DecodeDraftMessage(buf)
@@ -569,7 +767,7 @@ const DraftMessageClassName = "DraftMessage"
 //	}
 //	switch v := g.(type) {
 //	case *tg.DraftMessageEmpty: // draftMessageEmpty#1b0c841a
-//	case *tg.DraftMessage: // draftMessage#fd8e711f
+//	case *tg.DraftMessage: // draftMessage#96eaa5eb
 //	default: panic(v)
 //	}
 type DraftMessageClass interface {
@@ -619,7 +817,7 @@ func DecodeDraftMessage(buf *bin.Buffer) (DraftMessageClass, error) {
 		}
 		return &v, nil
 	case DraftMessageTypeID:
-		// Decoding draftMessage#fd8e711f.
+		// Decoding draftMessage#96eaa5eb.
 		v := DraftMessage{}
 		if err := v.Decode(buf); err != nil {
 			return nil, fmt.Errorf("unable to decode DraftMessageClass: %w", err)

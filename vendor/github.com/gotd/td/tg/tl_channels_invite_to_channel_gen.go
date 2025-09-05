@@ -31,15 +31,8 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// ChannelsInviteToChannelRequest represents TL type `channels.inviteToChannel#199f3a6c`.
+// ChannelsInviteToChannelRequest represents TL type `channels.inviteToChannel#c9e33d54`.
 // Invite users to a channel/supergroup
-// May also return 0-N updates of type updateGroupInvitePrivacyForbidden¹: it indicates
-// we couldn't add a user to a chat because of their privacy settings; if required, an
-// invite link² can be shared with the user, instead.
-//
-// Links:
-//  1. https://core.telegram.org/constructor/updateGroupInvitePrivacyForbidden
-//  2. https://core.telegram.org/api/invites
 //
 // See https://core.telegram.org/method/channels.inviteToChannel for reference.
 type ChannelsInviteToChannelRequest struct {
@@ -50,7 +43,7 @@ type ChannelsInviteToChannelRequest struct {
 }
 
 // ChannelsInviteToChannelRequestTypeID is TL type id of ChannelsInviteToChannelRequest.
-const ChannelsInviteToChannelRequestTypeID = 0x199f3a6c
+const ChannelsInviteToChannelRequestTypeID = 0xc9e33d54
 
 // Ensuring interfaces in compile-time for ChannelsInviteToChannelRequest.
 var (
@@ -130,7 +123,7 @@ func (i *ChannelsInviteToChannelRequest) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (i *ChannelsInviteToChannelRequest) Encode(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't encode channels.inviteToChannel#199f3a6c as nil")
+		return fmt.Errorf("can't encode channels.inviteToChannel#c9e33d54 as nil")
 	}
 	b.PutID(ChannelsInviteToChannelRequestTypeID)
 	return i.EncodeBare(b)
@@ -139,21 +132,21 @@ func (i *ChannelsInviteToChannelRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (i *ChannelsInviteToChannelRequest) EncodeBare(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't encode channels.inviteToChannel#199f3a6c as nil")
+		return fmt.Errorf("can't encode channels.inviteToChannel#c9e33d54 as nil")
 	}
 	if i.Channel == nil {
-		return fmt.Errorf("unable to encode channels.inviteToChannel#199f3a6c: field channel is nil")
+		return fmt.Errorf("unable to encode channels.inviteToChannel#c9e33d54: field channel is nil")
 	}
 	if err := i.Channel.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode channels.inviteToChannel#199f3a6c: field channel: %w", err)
+		return fmt.Errorf("unable to encode channels.inviteToChannel#c9e33d54: field channel: %w", err)
 	}
 	b.PutVectorHeader(len(i.Users))
 	for idx, v := range i.Users {
 		if v == nil {
-			return fmt.Errorf("unable to encode channels.inviteToChannel#199f3a6c: field users element with index %d is nil", idx)
+			return fmt.Errorf("unable to encode channels.inviteToChannel#c9e33d54: field users element with index %d is nil", idx)
 		}
 		if err := v.Encode(b); err != nil {
-			return fmt.Errorf("unable to encode channels.inviteToChannel#199f3a6c: field users element with index %d: %w", idx, err)
+			return fmt.Errorf("unable to encode channels.inviteToChannel#c9e33d54: field users element with index %d: %w", idx, err)
 		}
 	}
 	return nil
@@ -162,10 +155,10 @@ func (i *ChannelsInviteToChannelRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (i *ChannelsInviteToChannelRequest) Decode(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't decode channels.inviteToChannel#199f3a6c to nil")
+		return fmt.Errorf("can't decode channels.inviteToChannel#c9e33d54 to nil")
 	}
 	if err := b.ConsumeID(ChannelsInviteToChannelRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode channels.inviteToChannel#199f3a6c: %w", err)
+		return fmt.Errorf("unable to decode channels.inviteToChannel#c9e33d54: %w", err)
 	}
 	return i.DecodeBare(b)
 }
@@ -173,19 +166,19 @@ func (i *ChannelsInviteToChannelRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (i *ChannelsInviteToChannelRequest) DecodeBare(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't decode channels.inviteToChannel#199f3a6c to nil")
+		return fmt.Errorf("can't decode channels.inviteToChannel#c9e33d54 to nil")
 	}
 	{
 		value, err := DecodeInputChannel(b)
 		if err != nil {
-			return fmt.Errorf("unable to decode channels.inviteToChannel#199f3a6c: field channel: %w", err)
+			return fmt.Errorf("unable to decode channels.inviteToChannel#c9e33d54: field channel: %w", err)
 		}
 		i.Channel = value
 	}
 	{
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode channels.inviteToChannel#199f3a6c: field users: %w", err)
+			return fmt.Errorf("unable to decode channels.inviteToChannel#c9e33d54: field users: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -194,7 +187,7 @@ func (i *ChannelsInviteToChannelRequest) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			value, err := DecodeInputUser(b)
 			if err != nil {
-				return fmt.Errorf("unable to decode channels.inviteToChannel#199f3a6c: field users: %w", err)
+				return fmt.Errorf("unable to decode channels.inviteToChannel#c9e33d54: field users: %w", err)
 			}
 			i.Users = append(i.Users, value)
 		}
@@ -228,15 +221,8 @@ func (i *ChannelsInviteToChannelRequest) MapUsers() (value InputUserClassArray) 
 	return InputUserClassArray(i.Users)
 }
 
-// ChannelsInviteToChannel invokes method channels.inviteToChannel#199f3a6c returning error if any.
+// ChannelsInviteToChannel invokes method channels.inviteToChannel#c9e33d54 returning error if any.
 // Invite users to a channel/supergroup
-// May also return 0-N updates of type updateGroupInvitePrivacyForbidden¹: it indicates
-// we couldn't add a user to a chat because of their privacy settings; if required, an
-// invite link² can be shared with the user, instead.
-//
-// Links:
-//  1. https://core.telegram.org/constructor/updateGroupInvitePrivacyForbidden
-//  2. https://core.telegram.org/api/invites
 //
 // Possible errors:
 //
@@ -246,6 +232,7 @@ func (i *ChannelsInviteToChannelRequest) MapUsers() (value InputUserClassArray) 
 //	406 CHANNEL_PRIVATE: You haven't joined this channel/supergroup.
 //	403 CHAT_ADMIN_REQUIRED: You must be an admin in this chat to do this.
 //	400 CHAT_INVALID: Invalid chat.
+//	400 CHAT_MEMBER_ADD_FAILED: Could not add participants.
 //	403 CHAT_WRITE_FORBIDDEN: You can't write in this chat.
 //	400 INPUT_USER_DEACTIVATED: The specified user was deleted.
 //	400 MSG_ID_INVALID: Invalid message ID provided.
@@ -260,11 +247,11 @@ func (i *ChannelsInviteToChannelRequest) MapUsers() (value InputUserClassArray) 
 //	403 USER_PRIVACY_RESTRICTED: The user's privacy settings do not allow you to do this.
 //
 // See https://core.telegram.org/method/channels.inviteToChannel for reference.
-func (c *Client) ChannelsInviteToChannel(ctx context.Context, request *ChannelsInviteToChannelRequest) (UpdatesClass, error) {
-	var result UpdatesBox
+func (c *Client) ChannelsInviteToChannel(ctx context.Context, request *ChannelsInviteToChannelRequest) (*MessagesInvitedUsers, error) {
+	var result MessagesInvitedUsers
 
 	if err := c.rpc.Invoke(ctx, request, &result); err != nil {
 		return nil, err
 	}
-	return result.Updates, nil
+	return &result, nil
 }

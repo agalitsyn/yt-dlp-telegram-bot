@@ -1,9 +1,9 @@
 # bump: golang /GOLANG_VERSION=([\d.]+)/ docker:golang|^1
 # bump: golang link "Release notes" https://golang.org/doc/devel/release.html
-ARG GOLANG_VERSION=1.22.4
+ARG GOLANG_VERSION=1.25.1
 # bump: yt-dlp /YT_DLP=([\d.-]+)/ https://github.com/yt-dlp/yt-dlp.git|/^\d/|sort
 # bump: yt-dlp link "Release notes" https://github.com/yt-dlp/yt-dlp/releases/tag/$LATEST
-ARG YT_DLP=2024.05.27
+ARG YT_DLP=2025.08.27
 
 FROM golang:$GOLANG_VERSION AS base
 ARG YT_DLP

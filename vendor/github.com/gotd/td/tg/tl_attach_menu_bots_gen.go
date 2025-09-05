@@ -32,7 +32,7 @@ var (
 )
 
 // AttachMenuBotsNotModified represents TL type `attachMenuBotsNotModified#f1d88a5c`.
-// The list of bot web apps hasn't changed
+// The list of bot mini apps hasn't changed
 //
 // See https://core.telegram.org/constructor/attachMenuBotsNotModified for reference.
 type AttachMenuBotsNotModified struct {
@@ -134,19 +134,19 @@ func (a *AttachMenuBotsNotModified) DecodeBare(b *bin.Buffer) error {
 }
 
 // AttachMenuBots represents TL type `attachMenuBots#3c4301c0`.
-// Represents a list of bot web apps that can be launched from the attachment menu »¹
+// Represents a list of bot mini apps that can be launched from the attachment menu »¹
 //
 // Links:
 //  1. https://core.telegram.org/api/bots/attach
 //
 // See https://core.telegram.org/constructor/attachMenuBots for reference.
 type AttachMenuBots struct {
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
 	Hash int64
-	// List of bot web apps that can be launched from the attachment menu »¹
+	// List of bot mini apps that can be launched from the attachment menu »¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/bots/attach
@@ -375,6 +375,10 @@ const AttachMenuBotsClassName = "AttachMenuBots"
 // AttachMenuBotsClass represents AttachMenuBots generic type.
 //
 // See https://core.telegram.org/type/AttachMenuBots for reference.
+//
+// Constructors:
+//   - [AttachMenuBotsNotModified]
+//   - [AttachMenuBots]
 //
 // Example:
 //

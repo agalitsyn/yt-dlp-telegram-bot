@@ -55,7 +55,8 @@ type MessagesGetDialogsRequest struct {
 	// Links:
 	//  1) https://core.telegram.org/api/offsets
 	OffsetDate int
-	// Offsets for pagination, for more info click here¹
+	// Offsets for pagination, for more info click here¹ (top_message ID used for
+	// pagination)
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets
@@ -67,7 +68,7 @@ type MessagesGetDialogsRequest struct {
 	OffsetPeer InputPeerClass
 	// Number of list elements to be returned
 	Limit int
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -401,6 +402,7 @@ func (g *MessagesGetDialogsRequest) GetHash() (value int64) {
 //	403 CHAT_WRITE_FORBIDDEN: You can't write in this chat.
 //	400 FOLDER_ID_INVALID: Invalid folder ID.
 //	400 OFFSET_PEER_ID_INVALID: The provided offset peer is invalid.
+//	400 TAKEOUT_INVALID: The specified takeout ID is invalid.
 //
 // See https://core.telegram.org/method/messages.getDialogs for reference.
 func (c *Client) MessagesGetDialogs(ctx context.Context, request *MessagesGetDialogsRequest) (MessagesDialogsClass, error) {

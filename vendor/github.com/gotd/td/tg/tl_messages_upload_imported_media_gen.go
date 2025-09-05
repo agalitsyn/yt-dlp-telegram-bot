@@ -265,6 +265,12 @@ func (u *MessagesUploadImportedMediaRequest) GetMedia() (value InputMediaClass) 
 // Links:
 //  1. https://core.telegram.org/api/import
 //
+// Possible errors:
+//
+//	400 CHAT_ADMIN_REQUIRED: You must be an admin in this chat to do this.
+//	400 IMPORT_ID_INVALID: The specified import ID is invalid.
+//	400 MEDIA_INVALID: Media invalid.
+//
 // See https://core.telegram.org/method/messages.uploadImportedMedia for reference.
 func (c *Client) MessagesUploadImportedMedia(ctx context.Context, request *MessagesUploadImportedMediaRequest) (MessageMediaClass, error) {
 	var result MessageMediaBox

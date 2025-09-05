@@ -31,7 +31,7 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// AuthRequestFirebaseSMSRequest represents TL type `auth.requestFirebaseSms#89464b50`.
+// AuthRequestFirebaseSMSRequest represents TL type `auth.requestFirebaseSms#8e39261e`.
 // Request an SMS code via Firebase.
 //
 // See https://core.telegram.org/method/auth.requestFirebaseSms for reference.
@@ -55,6 +55,13 @@ type AuthRequestFirebaseSMSRequest struct {
 	//
 	// Use SetSafetyNetToken and GetSafetyNetToken helpers.
 	SafetyNetToken string
+	// On Android, an object obtained as described in the auth documentation »¹
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/auth
+	//
+	// Use SetPlayIntegrityToken and GetPlayIntegrityToken helpers.
+	PlayIntegrityToken string
 	// Secret token received via an apple push notification
 	//
 	// Use SetIosPushSecret and GetIosPushSecret helpers.
@@ -62,7 +69,7 @@ type AuthRequestFirebaseSMSRequest struct {
 }
 
 // AuthRequestFirebaseSMSRequestTypeID is TL type id of AuthRequestFirebaseSMSRequest.
-const AuthRequestFirebaseSMSRequestTypeID = 0x89464b50
+const AuthRequestFirebaseSMSRequestTypeID = 0x8e39261e
 
 // Ensuring interfaces in compile-time for AuthRequestFirebaseSMSRequest.
 var (
@@ -88,6 +95,9 @@ func (r *AuthRequestFirebaseSMSRequest) Zero() bool {
 	if !(r.SafetyNetToken == "") {
 		return false
 	}
+	if !(r.PlayIntegrityToken == "") {
+		return false
+	}
 	if !(r.IosPushSecret == "") {
 		return false
 	}
@@ -109,12 +119,17 @@ func (r *AuthRequestFirebaseSMSRequest) FillFrom(from interface {
 	GetPhoneNumber() (value string)
 	GetPhoneCodeHash() (value string)
 	GetSafetyNetToken() (value string, ok bool)
+	GetPlayIntegrityToken() (value string, ok bool)
 	GetIosPushSecret() (value string, ok bool)
 }) {
 	r.PhoneNumber = from.GetPhoneNumber()
 	r.PhoneCodeHash = from.GetPhoneCodeHash()
 	if val, ok := from.GetSafetyNetToken(); ok {
 		r.SafetyNetToken = val
+	}
+
+	if val, ok := from.GetPlayIntegrityToken(); ok {
+		r.PlayIntegrityToken = val
 	}
 
 	if val, ok := from.GetIosPushSecret(); ok {
@@ -160,6 +175,11 @@ func (r *AuthRequestFirebaseSMSRequest) TypeInfo() tdp.Type {
 			Null:       !r.Flags.Has(0),
 		},
 		{
+			Name:       "PlayIntegrityToken",
+			SchemaName: "play_integrity_token",
+			Null:       !r.Flags.Has(2),
+		},
+		{
 			Name:       "IosPushSecret",
 			SchemaName: "ios_push_secret",
 			Null:       !r.Flags.Has(1),
@@ -173,6 +193,9 @@ func (r *AuthRequestFirebaseSMSRequest) SetFlags() {
 	if !(r.SafetyNetToken == "") {
 		r.Flags.Set(0)
 	}
+	if !(r.PlayIntegrityToken == "") {
+		r.Flags.Set(2)
+	}
 	if !(r.IosPushSecret == "") {
 		r.Flags.Set(1)
 	}
@@ -181,7 +204,7 @@ func (r *AuthRequestFirebaseSMSRequest) SetFlags() {
 // Encode implements bin.Encoder.
 func (r *AuthRequestFirebaseSMSRequest) Encode(b *bin.Buffer) error {
 	if r == nil {
-		return fmt.Errorf("can't encode auth.requestFirebaseSms#89464b50 as nil")
+		return fmt.Errorf("can't encode auth.requestFirebaseSms#8e39261e as nil")
 	}
 	b.PutID(AuthRequestFirebaseSMSRequestTypeID)
 	return r.EncodeBare(b)
@@ -190,16 +213,19 @@ func (r *AuthRequestFirebaseSMSRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (r *AuthRequestFirebaseSMSRequest) EncodeBare(b *bin.Buffer) error {
 	if r == nil {
-		return fmt.Errorf("can't encode auth.requestFirebaseSms#89464b50 as nil")
+		return fmt.Errorf("can't encode auth.requestFirebaseSms#8e39261e as nil")
 	}
 	r.SetFlags()
 	if err := r.Flags.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode auth.requestFirebaseSms#89464b50: field flags: %w", err)
+		return fmt.Errorf("unable to encode auth.requestFirebaseSms#8e39261e: field flags: %w", err)
 	}
 	b.PutString(r.PhoneNumber)
 	b.PutString(r.PhoneCodeHash)
 	if r.Flags.Has(0) {
 		b.PutString(r.SafetyNetToken)
+	}
+	if r.Flags.Has(2) {
+		b.PutString(r.PlayIntegrityToken)
 	}
 	if r.Flags.Has(1) {
 		b.PutString(r.IosPushSecret)
@@ -210,10 +236,10 @@ func (r *AuthRequestFirebaseSMSRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (r *AuthRequestFirebaseSMSRequest) Decode(b *bin.Buffer) error {
 	if r == nil {
-		return fmt.Errorf("can't decode auth.requestFirebaseSms#89464b50 to nil")
+		return fmt.Errorf("can't decode auth.requestFirebaseSms#8e39261e to nil")
 	}
 	if err := b.ConsumeID(AuthRequestFirebaseSMSRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: %w", err)
+		return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: %w", err)
 	}
 	return r.DecodeBare(b)
 }
@@ -221,38 +247,45 @@ func (r *AuthRequestFirebaseSMSRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (r *AuthRequestFirebaseSMSRequest) DecodeBare(b *bin.Buffer) error {
 	if r == nil {
-		return fmt.Errorf("can't decode auth.requestFirebaseSms#89464b50 to nil")
+		return fmt.Errorf("can't decode auth.requestFirebaseSms#8e39261e to nil")
 	}
 	{
 		if err := r.Flags.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: field flags: %w", err)
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field flags: %w", err)
 		}
 	}
 	{
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: field phone_number: %w", err)
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field phone_number: %w", err)
 		}
 		r.PhoneNumber = value
 	}
 	{
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: field phone_code_hash: %w", err)
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field phone_code_hash: %w", err)
 		}
 		r.PhoneCodeHash = value
 	}
 	if r.Flags.Has(0) {
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: field safety_net_token: %w", err)
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field safety_net_token: %w", err)
 		}
 		r.SafetyNetToken = value
+	}
+	if r.Flags.Has(2) {
+		value, err := b.String()
+		if err != nil {
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field play_integrity_token: %w", err)
+		}
+		r.PlayIntegrityToken = value
 	}
 	if r.Flags.Has(1) {
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode auth.requestFirebaseSms#89464b50: field ios_push_secret: %w", err)
+			return fmt.Errorf("unable to decode auth.requestFirebaseSms#8e39261e: field ios_push_secret: %w", err)
 		}
 		r.IosPushSecret = value
 	}
@@ -293,6 +326,24 @@ func (r *AuthRequestFirebaseSMSRequest) GetSafetyNetToken() (value string, ok bo
 	return r.SafetyNetToken, true
 }
 
+// SetPlayIntegrityToken sets value of PlayIntegrityToken conditional field.
+func (r *AuthRequestFirebaseSMSRequest) SetPlayIntegrityToken(value string) {
+	r.Flags.Set(2)
+	r.PlayIntegrityToken = value
+}
+
+// GetPlayIntegrityToken returns value of PlayIntegrityToken conditional field and
+// boolean which is true if field was set.
+func (r *AuthRequestFirebaseSMSRequest) GetPlayIntegrityToken() (value string, ok bool) {
+	if r == nil {
+		return
+	}
+	if !r.Flags.Has(2) {
+		return value, false
+	}
+	return r.PlayIntegrityToken, true
+}
+
 // SetIosPushSecret sets value of IosPushSecret conditional field.
 func (r *AuthRequestFirebaseSMSRequest) SetIosPushSecret(value string) {
 	r.Flags.Set(1)
@@ -311,15 +362,15 @@ func (r *AuthRequestFirebaseSMSRequest) GetIosPushSecret() (value string, ok boo
 	return r.IosPushSecret, true
 }
 
-// AuthRequestFirebaseSMS invokes method auth.requestFirebaseSms#89464b50 returning error if any.
+// AuthRequestFirebaseSMS invokes method auth.requestFirebaseSms#8e39261e returning error if any.
 // Request an SMS code via Firebase.
 //
 // Possible errors:
 //
+//	400 PHONE_CODE_EMPTY: phone_code is missing.
 //	400 PHONE_NUMBER_INVALID: The phone number is invalid.
 //
 // See https://core.telegram.org/method/auth.requestFirebaseSms for reference.
-// Can be used by bots.
 func (c *Client) AuthRequestFirebaseSMS(ctx context.Context, request *AuthRequestFirebaseSMSRequest) (bool, error) {
 	var result BoolBox
 

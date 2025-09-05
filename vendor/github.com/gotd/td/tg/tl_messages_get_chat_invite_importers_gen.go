@@ -46,6 +46,12 @@ type MessagesGetChatInviteImportersRequest struct {
 	// Links:
 	//  1) https://core.telegram.org/api/invites#join-requests
 	Requested bool
+	// Set this flag if the link is a Telegram Star subscription link »¹ and only members
+	// with already expired subscription must be returned.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stars#star-subscriptions
+	SubscriptionExpired bool
 	// Chat
 	Peer InputPeerClass
 	// Invite link
@@ -65,7 +71,7 @@ type MessagesGetChatInviteImportersRequest struct {
 	// Links:
 	//  1) https://core.telegram.org/api/offsets
 	OffsetDate int
-	// User ID for pagination¹
+	// User ID for pagination¹: if set, offset_date must also be set.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets
@@ -96,6 +102,9 @@ func (g *MessagesGetChatInviteImportersRequest) Zero() bool {
 		return false
 	}
 	if !(g.Requested == false) {
+		return false
+	}
+	if !(g.SubscriptionExpired == false) {
 		return false
 	}
 	if !(g.Peer == nil) {
@@ -132,6 +141,7 @@ func (g *MessagesGetChatInviteImportersRequest) String() string {
 // FillFrom fills MessagesGetChatInviteImportersRequest from given interface.
 func (g *MessagesGetChatInviteImportersRequest) FillFrom(from interface {
 	GetRequested() (value bool)
+	GetSubscriptionExpired() (value bool)
 	GetPeer() (value InputPeerClass)
 	GetLink() (value string, ok bool)
 	GetQ() (value string, ok bool)
@@ -140,6 +150,7 @@ func (g *MessagesGetChatInviteImportersRequest) FillFrom(from interface {
 	GetLimit() (value int)
 }) {
 	g.Requested = from.GetRequested()
+	g.SubscriptionExpired = from.GetSubscriptionExpired()
 	g.Peer = from.GetPeer()
 	if val, ok := from.GetLink(); ok {
 		g.Link = val
@@ -183,6 +194,11 @@ func (g *MessagesGetChatInviteImportersRequest) TypeInfo() tdp.Type {
 			Null:       !g.Flags.Has(0),
 		},
 		{
+			Name:       "SubscriptionExpired",
+			SchemaName: "subscription_expired",
+			Null:       !g.Flags.Has(3),
+		},
+		{
 			Name:       "Peer",
 			SchemaName: "peer",
 		},
@@ -216,6 +232,9 @@ func (g *MessagesGetChatInviteImportersRequest) TypeInfo() tdp.Type {
 func (g *MessagesGetChatInviteImportersRequest) SetFlags() {
 	if !(g.Requested == false) {
 		g.Flags.Set(0)
+	}
+	if !(g.SubscriptionExpired == false) {
+		g.Flags.Set(3)
 	}
 	if !(g.Link == "") {
 		g.Flags.Set(1)
@@ -288,6 +307,7 @@ func (g *MessagesGetChatInviteImportersRequest) DecodeBare(b *bin.Buffer) error 
 		}
 	}
 	g.Requested = g.Flags.Has(0)
+	g.SubscriptionExpired = g.Flags.Has(3)
 	{
 		value, err := DecodeInputPeer(b)
 		if err != nil {
@@ -350,6 +370,25 @@ func (g *MessagesGetChatInviteImportersRequest) GetRequested() (value bool) {
 		return
 	}
 	return g.Flags.Has(0)
+}
+
+// SetSubscriptionExpired sets value of SubscriptionExpired conditional field.
+func (g *MessagesGetChatInviteImportersRequest) SetSubscriptionExpired(value bool) {
+	if value {
+		g.Flags.Set(3)
+		g.SubscriptionExpired = true
+	} else {
+		g.Flags.Unset(3)
+		g.SubscriptionExpired = false
+	}
+}
+
+// GetSubscriptionExpired returns value of SubscriptionExpired conditional field.
+func (g *MessagesGetChatInviteImportersRequest) GetSubscriptionExpired() (value bool) {
+	if g == nil {
+		return
+	}
+	return g.Flags.Has(3)
 }
 
 // GetPeer returns value of Peer field.
@@ -425,6 +464,7 @@ func (g *MessagesGetChatInviteImportersRequest) GetLimit() (value int) {
 //
 // Possible errors:
 //
+//	400 CHANNEL_INVALID: The provided channel is invalid.
 //	400 CHANNEL_PRIVATE: You haven't joined this channel/supergroup.
 //	400 CHAT_ADMIN_REQUIRED: You must be an admin in this chat to do this.
 //	403 CHAT_WRITE_FORBIDDEN: You can't write in this chat.

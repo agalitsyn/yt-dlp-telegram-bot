@@ -167,7 +167,17 @@ func (c *ChatEmpty) GetID() (value int64) {
 }
 
 // Chat represents TL type `chat#41cbf256`.
-// Info about a group
+// Info about a group.
+// When updating the local peer database¹, all fields from the newly received
+// constructor take priority over the old constructor cached locally (including by
+// removing fields that aren't set in the new constructor).
+// See here »¹ for an implementation of the logic to use when updating the local user
+// peer database².
+//
+// Links:
+//  1. https://core.telegram.org/api/peers
+//  2. https://github.com/tdlib/td/blob/a24af0992245f838f2b4b418a0a2d5fa9caa27b5/td/telegram/ChatManager.cpp#L5152
+//  3. https://core.telegram.org/api/peers
 //
 // See https://core.telegram.org/constructor/chat for reference.
 type Chat struct {
@@ -194,7 +204,10 @@ type Chat struct {
 	// Links:
 	//  1) https://telegram.org/blog/protected-content-delete-by-date-and-more
 	Noforwards bool
-	// ID of the group
+	// ID of the group, see here »¹ for more info
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/peers#peer-id
 	ID int64
 	// Title
 	Title string
@@ -999,8 +1012,20 @@ func (c *ChatForbidden) GetTitle() (value string) {
 	return c.Title
 }
 
-// Channel represents TL type `channel#83259464`.
+// Channel represents TL type `channel#fe685355`.
 // Channel/supergroup info
+// When updating the local peer database¹, all fields from the newly received
+// constructor take priority over the old constructor cached locally (including by
+// removing fields that aren't set in the new constructor).
+// The only exception to the above rule is when the min flag is set, in which case only
+// the following fields must be applied over any locally stored version:
+// See here »¹ for an implementation of the logic to use when updating the local user
+// peer database².
+//
+// Links:
+//  1. https://core.telegram.org/api/peers
+//  2. https://github.com/tdlib/td/blob/a24af0992245f838f2b4b418a0a2d5fa9caa27b5/td/telegram/ChatManager.cpp#L8329
+//  3. https://core.telegram.org/api/peers
 //
 // See https://core.telegram.org/constructor/channel for reference.
 type Channel struct {
@@ -1011,15 +1036,20 @@ type Channel struct {
 	Flags bin.Fields
 	// Whether the current user is the creator of this channel
 	Creator bool
-	// Whether the current user has left this channel
+	// Whether the current user has left or is not a member of this channel
 	Left bool
 	// Is this a channel?
 	Broadcast bool
 	// Is this channel verified by telegram?
 	Verified bool
-	// Is this a supergroup?
+	// Is this a supergroup? Changes to this flag should invalidate the local channelFull¹
+	// cache for this channel/supergroup ID, see here »² for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/constructor/channelFull
+	//  2) https://core.telegram.org/api/peers#full-info-database
 	Megagroup bool
-	// Whether viewing/writing in this channel for a reason (see restriction_reason
+	// Whether viewing/writing in this channel for a reason (see restriction_reason)
 	Restricted bool
 	// Whether signatures are enabled (channels)
 	Signatures bool
@@ -1028,28 +1058,54 @@ type Channel struct {
 	// Links:
 	//  1) https://core.telegram.org/api/min
 	Min bool
-	// This channel/supergroup is probably a scam
+	// This channel/supergroup is probably a scam Changes to this flag should invalidate the
+	// local channelFull¹ cache for this channel/supergroup ID, see here »² for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/constructor/channelFull
+	//  2) https://core.telegram.org/api/peers#full-info-database
 	Scam bool
-	// Whether this channel has a private join link
+	// Whether this channel has a linked discussion group »¹ (or this supergroup is a
+	// channel's discussion group). The actual ID of the linked channel/supergroup is
+	// contained in channelFull².linked_chat_id. Changes to this flag should invalidate the
+	// local channelFull³ cache for this channel/supergroup ID, see here »⁴ for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/discussion
+	//  2) https://core.telegram.org/constructor/channelFull
+	//  3) https://core.telegram.org/constructor/channelFull
+	//  4) https://core.telegram.org/api/peers#full-info-database
 	HasLink bool
 	// Whether this chanel has a geoposition
 	HasGeo bool
-	// Whether slow mode is enabled for groups to prevent flood in chat
+	// Whether slow mode is enabled for groups to prevent flood in chat. Changes to this flag
+	// should invalidate the local channelFull¹ cache for this channel/supergroup ID, see
+	// here »² for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/constructor/channelFull
+	//  2) https://core.telegram.org/api/peers#full-info-database
 	SlowmodeEnabled bool
 	// Whether a group call or livestream is currently active
 	CallActive bool
 	// Whether there's anyone in the group call or livestream
 	CallNotEmpty bool
 	// If set, this supergroup/channel¹ was reported by many users as a fake or scam: be
-	// careful when interacting with it.
+	// careful when interacting with it. Changes to this flag should invalidate the local
+	// channelFull² cache for this channel/supergroup ID, see here »³ for more info.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/channel
+	//  2) https://core.telegram.org/constructor/channelFull
+	//  3) https://core.telegram.org/api/peers#full-info-database
 	Fake bool
-	// Whether this supergroup¹ is a gigagroup
+	// Whether this supergroup¹ is a gigagroupChanges to this flag should invalidate the
+	// local channelFull² cache for this channel/supergroup ID, see here »³ for more info.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/channel
+	//  2) https://core.telegram.org/constructor/channelFull
+	//  3) https://core.telegram.org/api/peers#full-info-database
 	Gigagroup bool
 	// Whether this channel or group is protected¹, thus does not allow forwarding messages
 	// from it
@@ -1058,38 +1114,79 @@ type Channel struct {
 	//  1) https://telegram.org/blog/protected-content-delete-by-date-and-more
 	Noforwards bool
 	// Whether a user needs to join the supergroup before they can send messages: can be
-	// false only for discussion groups »¹, toggle using channels.toggleJoinToSend²
+	// false only for discussion groups »¹, toggle using channels.toggleJoinToSend²Changes
+	// to this flag should invalidate the local channelFull³ cache for this
+	// channel/supergroup ID, see here »⁴ for more info.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/discussion
 	//  2) https://core.telegram.org/method/channels.toggleJoinToSend
+	//  3) https://core.telegram.org/constructor/channelFull
+	//  4) https://core.telegram.org/api/peers#full-info-database
 	JoinToSend bool
 	// Whether a user's join request will have to be approved by administrators¹, toggle
-	// using channels.toggleJoinToSend²
+	// using channels.toggleJoinToSend²Changes to this flag should invalidate the local
+	// channelFull³ cache for this channel/supergroup ID, see here »⁴ for more info.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/invites#join-requests
 	//  2) https://core.telegram.org/method/channels.toggleJoinRequest
+	//  3) https://core.telegram.org/constructor/channelFull
+	//  4) https://core.telegram.org/api/peers#full-info-database
 	JoinRequest bool
-	// Whether this supergroup is a forum¹
+	// Whether this supergroup is a forum¹. Changes to this flag should invalidate the local
+	// channelFull² cache for this channel/supergroup ID, see here »³ for more info.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/forum
+	//  2) https://core.telegram.org/constructor/channelFull
+	//  3) https://core.telegram.org/api/peers#full-info-database
 	Forum bool
 	// Flags, see TL conditional fields¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/mtproto/TL-combinators#conditional-fields
 	Flags2 bin.Fields
-	// ID of the channel
+	// Whether we have hidden all stories posted by this channel »¹.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stories#hiding-stories-of-other-users
+	StoriesHidden bool
+	// If set, indicates that the stories_hidden flag was not populated, and its value must
+	// cannot be relied on; use the previously cached value, or re-fetch the constructor
+	// using channels.getChannels¹ to obtain the latest value of the stories_hidden flag.
+	//
+	// Links:
+	//  1) https://core.telegram.org/method/channels.getChannels
+	StoriesHiddenMin bool
+	// No stories from the channel are visible.
+	StoriesUnavailable bool
+	// If set, messages sent by admins to this channel will link to the admin's profile (just
+	// like with groups).
+	SignatureProfiles bool
+	// Autotranslation field of Channel.
+	Autotranslation bool
+	// BroadcastMessagesAllowed field of Channel.
+	BroadcastMessagesAllowed bool
+	// Monoforum field of Channel.
+	Monoforum bool
+	// ForumTabs field of Channel.
+	ForumTabs bool
+	// ID of the channel, see here »¹ for more info
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/peers#peer-id
 	ID int64
-	// Access hash
+	// Access hash, see here »¹ for more info
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/peers#access-hash
 	//
 	// Use SetAccessHash and GetAccessHash helpers.
 	AccessHash int64
 	// Title
 	Title string
-	// Username
+	// Main active username.
 	//
 	// Use SetUsername and GetUsername helpers.
 	Username string
@@ -1098,7 +1195,13 @@ type Channel struct {
 	// Date when the user joined the supergroup/channel, or if the user isn't a member, its
 	// creation date
 	Date int
-	// Contains the reason why access to this channel must be restricted.
+	// Contains the reason why access to this channel must be restricted. Changes to this
+	// flag should invalidate the local channelFull¹ cache for this channel/supergroup ID,
+	// see here »² for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/constructor/channelFull
+	//  2) https://core.telegram.org/api/peers#full-info-database
 	//
 	// Use SetRestrictionReason and GetRestrictionReason helpers.
 	RestrictionReason []RestrictionReason
@@ -1131,10 +1234,68 @@ type Channel struct {
 	//
 	// Use SetUsernames and GetUsernames helpers.
 	Usernames []Username
+	// ID of the maximum read story¹.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stories
+	//
+	// Use SetStoriesMaxID and GetStoriesMaxID helpers.
+	StoriesMaxID int
+	// The channel's accent color¹.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/colors
+	//
+	// Use SetColor and GetColor helpers.
+	Color PeerColor
+	// The channel's profile color¹.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/colors
+	//
+	// Use SetProfileColor and GetProfileColor helpers.
+	ProfileColor PeerColor
+	// Emoji status¹
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/emoji-status
+	//
+	// Use SetEmojiStatus and GetEmojiStatus helpers.
+	EmojiStatus EmojiStatusClass
+	// Boost level¹. Changes to this flag should invalidate the local channelFull² cache
+	// for this channel/supergroup ID, see here »³ for more info.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/boost
+	//  2) https://core.telegram.org/constructor/channelFull
+	//  3) https://core.telegram.org/api/peers#full-info-database
+	//
+	// Use SetLevel and GetLevel helpers.
+	Level int
+	// Expiration date of the Telegram Star subscription »¹ the current user has bought to
+	// gain access to this channel.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stars#star-subscriptions
+	//
+	// Use SetSubscriptionUntilDate and GetSubscriptionUntilDate helpers.
+	SubscriptionUntilDate int
+	// BotVerificationIcon field of Channel.
+	//
+	// Use SetBotVerificationIcon and GetBotVerificationIcon helpers.
+	BotVerificationIcon int64
+	// SendPaidMessagesStars field of Channel.
+	//
+	// Use SetSendPaidMessagesStars and GetSendPaidMessagesStars helpers.
+	SendPaidMessagesStars int64
+	// LinkedMonoforumID field of Channel.
+	//
+	// Use SetLinkedMonoforumID and GetLinkedMonoforumID helpers.
+	LinkedMonoforumID int64
 }
 
 // ChannelTypeID is TL type id of Channel.
-const ChannelTypeID = 0x83259464
+const ChannelTypeID = 0xfe685355
 
 // construct implements constructor of ChatClass.
 func (c Channel) construct() ChatClass { return &c }
@@ -1219,6 +1380,30 @@ func (c *Channel) Zero() bool {
 	if !(c.Flags2.Zero()) {
 		return false
 	}
+	if !(c.StoriesHidden == false) {
+		return false
+	}
+	if !(c.StoriesHiddenMin == false) {
+		return false
+	}
+	if !(c.StoriesUnavailable == false) {
+		return false
+	}
+	if !(c.SignatureProfiles == false) {
+		return false
+	}
+	if !(c.Autotranslation == false) {
+		return false
+	}
+	if !(c.BroadcastMessagesAllowed == false) {
+		return false
+	}
+	if !(c.Monoforum == false) {
+		return false
+	}
+	if !(c.ForumTabs == false) {
+		return false
+	}
 	if !(c.ID == 0) {
 		return false
 	}
@@ -1253,6 +1438,33 @@ func (c *Channel) Zero() bool {
 		return false
 	}
 	if !(c.Usernames == nil) {
+		return false
+	}
+	if !(c.StoriesMaxID == 0) {
+		return false
+	}
+	if !(c.Color.Zero()) {
+		return false
+	}
+	if !(c.ProfileColor.Zero()) {
+		return false
+	}
+	if !(c.EmojiStatus == nil) {
+		return false
+	}
+	if !(c.Level == 0) {
+		return false
+	}
+	if !(c.SubscriptionUntilDate == 0) {
+		return false
+	}
+	if !(c.BotVerificationIcon == 0) {
+		return false
+	}
+	if !(c.SendPaidMessagesStars == 0) {
+		return false
+	}
+	if !(c.LinkedMonoforumID == 0) {
 		return false
 	}
 
@@ -1290,6 +1502,14 @@ func (c *Channel) FillFrom(from interface {
 	GetJoinToSend() (value bool)
 	GetJoinRequest() (value bool)
 	GetForum() (value bool)
+	GetStoriesHidden() (value bool)
+	GetStoriesHiddenMin() (value bool)
+	GetStoriesUnavailable() (value bool)
+	GetSignatureProfiles() (value bool)
+	GetAutotranslation() (value bool)
+	GetBroadcastMessagesAllowed() (value bool)
+	GetMonoforum() (value bool)
+	GetForumTabs() (value bool)
 	GetID() (value int64)
 	GetAccessHash() (value int64, ok bool)
 	GetTitle() (value string)
@@ -1302,6 +1522,15 @@ func (c *Channel) FillFrom(from interface {
 	GetDefaultBannedRights() (value ChatBannedRights, ok bool)
 	GetParticipantsCount() (value int, ok bool)
 	GetUsernames() (value []Username, ok bool)
+	GetStoriesMaxID() (value int, ok bool)
+	GetColor() (value PeerColor, ok bool)
+	GetProfileColor() (value PeerColor, ok bool)
+	GetEmojiStatus() (value EmojiStatusClass, ok bool)
+	GetLevel() (value int, ok bool)
+	GetSubscriptionUntilDate() (value int, ok bool)
+	GetBotVerificationIcon() (value int64, ok bool)
+	GetSendPaidMessagesStars() (value int64, ok bool)
+	GetLinkedMonoforumID() (value int64, ok bool)
 }) {
 	c.Creator = from.GetCreator()
 	c.Left = from.GetLeft()
@@ -1323,6 +1552,14 @@ func (c *Channel) FillFrom(from interface {
 	c.JoinToSend = from.GetJoinToSend()
 	c.JoinRequest = from.GetJoinRequest()
 	c.Forum = from.GetForum()
+	c.StoriesHidden = from.GetStoriesHidden()
+	c.StoriesHiddenMin = from.GetStoriesHiddenMin()
+	c.StoriesUnavailable = from.GetStoriesUnavailable()
+	c.SignatureProfiles = from.GetSignatureProfiles()
+	c.Autotranslation = from.GetAutotranslation()
+	c.BroadcastMessagesAllowed = from.GetBroadcastMessagesAllowed()
+	c.Monoforum = from.GetMonoforum()
+	c.ForumTabs = from.GetForumTabs()
 	c.ID = from.GetID()
 	if val, ok := from.GetAccessHash(); ok {
 		c.AccessHash = val
@@ -1357,6 +1594,42 @@ func (c *Channel) FillFrom(from interface {
 
 	if val, ok := from.GetUsernames(); ok {
 		c.Usernames = val
+	}
+
+	if val, ok := from.GetStoriesMaxID(); ok {
+		c.StoriesMaxID = val
+	}
+
+	if val, ok := from.GetColor(); ok {
+		c.Color = val
+	}
+
+	if val, ok := from.GetProfileColor(); ok {
+		c.ProfileColor = val
+	}
+
+	if val, ok := from.GetEmojiStatus(); ok {
+		c.EmojiStatus = val
+	}
+
+	if val, ok := from.GetLevel(); ok {
+		c.Level = val
+	}
+
+	if val, ok := from.GetSubscriptionUntilDate(); ok {
+		c.SubscriptionUntilDate = val
+	}
+
+	if val, ok := from.GetBotVerificationIcon(); ok {
+		c.BotVerificationIcon = val
+	}
+
+	if val, ok := from.GetSendPaidMessagesStars(); ok {
+		c.SendPaidMessagesStars = val
+	}
+
+	if val, ok := from.GetLinkedMonoforumID(); ok {
+		c.LinkedMonoforumID = val
 	}
 
 }
@@ -1485,6 +1758,46 @@ func (c *Channel) TypeInfo() tdp.Type {
 			Null:       !c.Flags.Has(30),
 		},
 		{
+			Name:       "StoriesHidden",
+			SchemaName: "stories_hidden",
+			Null:       !c.Flags2.Has(1),
+		},
+		{
+			Name:       "StoriesHiddenMin",
+			SchemaName: "stories_hidden_min",
+			Null:       !c.Flags2.Has(2),
+		},
+		{
+			Name:       "StoriesUnavailable",
+			SchemaName: "stories_unavailable",
+			Null:       !c.Flags2.Has(3),
+		},
+		{
+			Name:       "SignatureProfiles",
+			SchemaName: "signature_profiles",
+			Null:       !c.Flags2.Has(12),
+		},
+		{
+			Name:       "Autotranslation",
+			SchemaName: "autotranslation",
+			Null:       !c.Flags2.Has(15),
+		},
+		{
+			Name:       "BroadcastMessagesAllowed",
+			SchemaName: "broadcast_messages_allowed",
+			Null:       !c.Flags2.Has(16),
+		},
+		{
+			Name:       "Monoforum",
+			SchemaName: "monoforum",
+			Null:       !c.Flags2.Has(17),
+		},
+		{
+			Name:       "ForumTabs",
+			SchemaName: "forum_tabs",
+			Null:       !c.Flags2.Has(19),
+		},
+		{
 			Name:       "ID",
 			SchemaName: "id",
 		},
@@ -1539,6 +1852,51 @@ func (c *Channel) TypeInfo() tdp.Type {
 			Name:       "Usernames",
 			SchemaName: "usernames",
 			Null:       !c.Flags2.Has(0),
+		},
+		{
+			Name:       "StoriesMaxID",
+			SchemaName: "stories_max_id",
+			Null:       !c.Flags2.Has(4),
+		},
+		{
+			Name:       "Color",
+			SchemaName: "color",
+			Null:       !c.Flags2.Has(7),
+		},
+		{
+			Name:       "ProfileColor",
+			SchemaName: "profile_color",
+			Null:       !c.Flags2.Has(8),
+		},
+		{
+			Name:       "EmojiStatus",
+			SchemaName: "emoji_status",
+			Null:       !c.Flags2.Has(9),
+		},
+		{
+			Name:       "Level",
+			SchemaName: "level",
+			Null:       !c.Flags2.Has(10),
+		},
+		{
+			Name:       "SubscriptionUntilDate",
+			SchemaName: "subscription_until_date",
+			Null:       !c.Flags2.Has(11),
+		},
+		{
+			Name:       "BotVerificationIcon",
+			SchemaName: "bot_verification_icon",
+			Null:       !c.Flags2.Has(13),
+		},
+		{
+			Name:       "SendPaidMessagesStars",
+			SchemaName: "send_paid_messages_stars",
+			Null:       !c.Flags2.Has(14),
+		},
+		{
+			Name:       "LinkedMonoforumID",
+			SchemaName: "linked_monoforum_id",
+			Null:       !c.Flags2.Has(18),
 		},
 	}
 	return typ
@@ -1606,6 +1964,30 @@ func (c *Channel) SetFlags() {
 	if !(c.Forum == false) {
 		c.Flags.Set(30)
 	}
+	if !(c.StoriesHidden == false) {
+		c.Flags2.Set(1)
+	}
+	if !(c.StoriesHiddenMin == false) {
+		c.Flags2.Set(2)
+	}
+	if !(c.StoriesUnavailable == false) {
+		c.Flags2.Set(3)
+	}
+	if !(c.SignatureProfiles == false) {
+		c.Flags2.Set(12)
+	}
+	if !(c.Autotranslation == false) {
+		c.Flags2.Set(15)
+	}
+	if !(c.BroadcastMessagesAllowed == false) {
+		c.Flags2.Set(16)
+	}
+	if !(c.Monoforum == false) {
+		c.Flags2.Set(17)
+	}
+	if !(c.ForumTabs == false) {
+		c.Flags2.Set(19)
+	}
 	if !(c.AccessHash == 0) {
 		c.Flags.Set(13)
 	}
@@ -1630,12 +2012,39 @@ func (c *Channel) SetFlags() {
 	if !(c.Usernames == nil) {
 		c.Flags2.Set(0)
 	}
+	if !(c.StoriesMaxID == 0) {
+		c.Flags2.Set(4)
+	}
+	if !(c.Color.Zero()) {
+		c.Flags2.Set(7)
+	}
+	if !(c.ProfileColor.Zero()) {
+		c.Flags2.Set(8)
+	}
+	if !(c.EmojiStatus == nil) {
+		c.Flags2.Set(9)
+	}
+	if !(c.Level == 0) {
+		c.Flags2.Set(10)
+	}
+	if !(c.SubscriptionUntilDate == 0) {
+		c.Flags2.Set(11)
+	}
+	if !(c.BotVerificationIcon == 0) {
+		c.Flags2.Set(13)
+	}
+	if !(c.SendPaidMessagesStars == 0) {
+		c.Flags2.Set(14)
+	}
+	if !(c.LinkedMonoforumID == 0) {
+		c.Flags2.Set(18)
+	}
 }
 
 // Encode implements bin.Encoder.
 func (c *Channel) Encode(b *bin.Buffer) error {
 	if c == nil {
-		return fmt.Errorf("can't encode channel#83259464 as nil")
+		return fmt.Errorf("can't encode channel#fe685355 as nil")
 	}
 	b.PutID(ChannelTypeID)
 	return c.EncodeBare(b)
@@ -1644,14 +2053,14 @@ func (c *Channel) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (c *Channel) EncodeBare(b *bin.Buffer) error {
 	if c == nil {
-		return fmt.Errorf("can't encode channel#83259464 as nil")
+		return fmt.Errorf("can't encode channel#fe685355 as nil")
 	}
 	c.SetFlags()
 	if err := c.Flags.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode channel#83259464: field flags: %w", err)
+		return fmt.Errorf("unable to encode channel#fe685355: field flags: %w", err)
 	}
 	if err := c.Flags2.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode channel#83259464: field flags2: %w", err)
+		return fmt.Errorf("unable to encode channel#fe685355: field flags2: %w", err)
 	}
 	b.PutLong(c.ID)
 	if c.Flags.Has(13) {
@@ -1662,33 +2071,33 @@ func (c *Channel) EncodeBare(b *bin.Buffer) error {
 		b.PutString(c.Username)
 	}
 	if c.Photo == nil {
-		return fmt.Errorf("unable to encode channel#83259464: field photo is nil")
+		return fmt.Errorf("unable to encode channel#fe685355: field photo is nil")
 	}
 	if err := c.Photo.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode channel#83259464: field photo: %w", err)
+		return fmt.Errorf("unable to encode channel#fe685355: field photo: %w", err)
 	}
 	b.PutInt(c.Date)
 	if c.Flags.Has(9) {
 		b.PutVectorHeader(len(c.RestrictionReason))
 		for idx, v := range c.RestrictionReason {
 			if err := v.Encode(b); err != nil {
-				return fmt.Errorf("unable to encode channel#83259464: field restriction_reason element with index %d: %w", idx, err)
+				return fmt.Errorf("unable to encode channel#fe685355: field restriction_reason element with index %d: %w", idx, err)
 			}
 		}
 	}
 	if c.Flags.Has(14) {
 		if err := c.AdminRights.Encode(b); err != nil {
-			return fmt.Errorf("unable to encode channel#83259464: field admin_rights: %w", err)
+			return fmt.Errorf("unable to encode channel#fe685355: field admin_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(15) {
 		if err := c.BannedRights.Encode(b); err != nil {
-			return fmt.Errorf("unable to encode channel#83259464: field banned_rights: %w", err)
+			return fmt.Errorf("unable to encode channel#fe685355: field banned_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(18) {
 		if err := c.DefaultBannedRights.Encode(b); err != nil {
-			return fmt.Errorf("unable to encode channel#83259464: field default_banned_rights: %w", err)
+			return fmt.Errorf("unable to encode channel#fe685355: field default_banned_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(17) {
@@ -1698,9 +2107,45 @@ func (c *Channel) EncodeBare(b *bin.Buffer) error {
 		b.PutVectorHeader(len(c.Usernames))
 		for idx, v := range c.Usernames {
 			if err := v.Encode(b); err != nil {
-				return fmt.Errorf("unable to encode channel#83259464: field usernames element with index %d: %w", idx, err)
+				return fmt.Errorf("unable to encode channel#fe685355: field usernames element with index %d: %w", idx, err)
 			}
 		}
+	}
+	if c.Flags2.Has(4) {
+		b.PutInt(c.StoriesMaxID)
+	}
+	if c.Flags2.Has(7) {
+		if err := c.Color.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode channel#fe685355: field color: %w", err)
+		}
+	}
+	if c.Flags2.Has(8) {
+		if err := c.ProfileColor.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode channel#fe685355: field profile_color: %w", err)
+		}
+	}
+	if c.Flags2.Has(9) {
+		if c.EmojiStatus == nil {
+			return fmt.Errorf("unable to encode channel#fe685355: field emoji_status is nil")
+		}
+		if err := c.EmojiStatus.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode channel#fe685355: field emoji_status: %w", err)
+		}
+	}
+	if c.Flags2.Has(10) {
+		b.PutInt(c.Level)
+	}
+	if c.Flags2.Has(11) {
+		b.PutInt(c.SubscriptionUntilDate)
+	}
+	if c.Flags2.Has(13) {
+		b.PutLong(c.BotVerificationIcon)
+	}
+	if c.Flags2.Has(14) {
+		b.PutLong(c.SendPaidMessagesStars)
+	}
+	if c.Flags2.Has(18) {
+		b.PutLong(c.LinkedMonoforumID)
 	}
 	return nil
 }
@@ -1708,10 +2153,10 @@ func (c *Channel) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (c *Channel) Decode(b *bin.Buffer) error {
 	if c == nil {
-		return fmt.Errorf("can't decode channel#83259464 to nil")
+		return fmt.Errorf("can't decode channel#fe685355 to nil")
 	}
 	if err := b.ConsumeID(ChannelTypeID); err != nil {
-		return fmt.Errorf("unable to decode channel#83259464: %w", err)
+		return fmt.Errorf("unable to decode channel#fe685355: %w", err)
 	}
 	return c.DecodeBare(b)
 }
@@ -1719,11 +2164,11 @@ func (c *Channel) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (c *Channel) DecodeBare(b *bin.Buffer) error {
 	if c == nil {
-		return fmt.Errorf("can't decode channel#83259464 to nil")
+		return fmt.Errorf("can't decode channel#fe685355 to nil")
 	}
 	{
 		if err := c.Flags.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field flags: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field flags: %w", err)
 		}
 	}
 	c.Creator = c.Flags.Has(0)
@@ -1748,55 +2193,63 @@ func (c *Channel) DecodeBare(b *bin.Buffer) error {
 	c.Forum = c.Flags.Has(30)
 	{
 		if err := c.Flags2.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field flags2: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field flags2: %w", err)
 		}
 	}
+	c.StoriesHidden = c.Flags2.Has(1)
+	c.StoriesHiddenMin = c.Flags2.Has(2)
+	c.StoriesUnavailable = c.Flags2.Has(3)
+	c.SignatureProfiles = c.Flags2.Has(12)
+	c.Autotranslation = c.Flags2.Has(15)
+	c.BroadcastMessagesAllowed = c.Flags2.Has(16)
+	c.Monoforum = c.Flags2.Has(17)
+	c.ForumTabs = c.Flags2.Has(19)
 	{
 		value, err := b.Long()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field id: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field id: %w", err)
 		}
 		c.ID = value
 	}
 	if c.Flags.Has(13) {
 		value, err := b.Long()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field access_hash: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field access_hash: %w", err)
 		}
 		c.AccessHash = value
 	}
 	{
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field title: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field title: %w", err)
 		}
 		c.Title = value
 	}
 	if c.Flags.Has(6) {
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field username: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field username: %w", err)
 		}
 		c.Username = value
 	}
 	{
 		value, err := DecodeChatPhoto(b)
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field photo: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field photo: %w", err)
 		}
 		c.Photo = value
 	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field date: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field date: %w", err)
 		}
 		c.Date = value
 	}
 	if c.Flags.Has(9) {
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field restriction_reason: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field restriction_reason: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -1805,37 +2258,37 @@ func (c *Channel) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			var value RestrictionReason
 			if err := value.Decode(b); err != nil {
-				return fmt.Errorf("unable to decode channel#83259464: field restriction_reason: %w", err)
+				return fmt.Errorf("unable to decode channel#fe685355: field restriction_reason: %w", err)
 			}
 			c.RestrictionReason = append(c.RestrictionReason, value)
 		}
 	}
 	if c.Flags.Has(14) {
 		if err := c.AdminRights.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field admin_rights: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field admin_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(15) {
 		if err := c.BannedRights.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field banned_rights: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field banned_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(18) {
 		if err := c.DefaultBannedRights.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field default_banned_rights: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field default_banned_rights: %w", err)
 		}
 	}
 	if c.Flags.Has(17) {
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field participants_count: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field participants_count: %w", err)
 		}
 		c.ParticipantsCount = value
 	}
 	if c.Flags2.Has(0) {
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode channel#83259464: field usernames: %w", err)
+			return fmt.Errorf("unable to decode channel#fe685355: field usernames: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -1844,10 +2297,69 @@ func (c *Channel) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			var value Username
 			if err := value.Decode(b); err != nil {
-				return fmt.Errorf("unable to decode channel#83259464: field usernames: %w", err)
+				return fmt.Errorf("unable to decode channel#fe685355: field usernames: %w", err)
 			}
 			c.Usernames = append(c.Usernames, value)
 		}
+	}
+	if c.Flags2.Has(4) {
+		value, err := b.Int()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field stories_max_id: %w", err)
+		}
+		c.StoriesMaxID = value
+	}
+	if c.Flags2.Has(7) {
+		if err := c.Color.Decode(b); err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field color: %w", err)
+		}
+	}
+	if c.Flags2.Has(8) {
+		if err := c.ProfileColor.Decode(b); err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field profile_color: %w", err)
+		}
+	}
+	if c.Flags2.Has(9) {
+		value, err := DecodeEmojiStatus(b)
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field emoji_status: %w", err)
+		}
+		c.EmojiStatus = value
+	}
+	if c.Flags2.Has(10) {
+		value, err := b.Int()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field level: %w", err)
+		}
+		c.Level = value
+	}
+	if c.Flags2.Has(11) {
+		value, err := b.Int()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field subscription_until_date: %w", err)
+		}
+		c.SubscriptionUntilDate = value
+	}
+	if c.Flags2.Has(13) {
+		value, err := b.Long()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field bot_verification_icon: %w", err)
+		}
+		c.BotVerificationIcon = value
+	}
+	if c.Flags2.Has(14) {
+		value, err := b.Long()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field send_paid_messages_stars: %w", err)
+		}
+		c.SendPaidMessagesStars = value
+	}
+	if c.Flags2.Has(18) {
+		value, err := b.Long()
+		if err != nil {
+			return fmt.Errorf("unable to decode channel#fe685355: field linked_monoforum_id: %w", err)
+		}
+		c.LinkedMonoforumID = value
 	}
 	return nil
 }
@@ -2232,6 +2744,158 @@ func (c *Channel) GetForum() (value bool) {
 	return c.Flags.Has(30)
 }
 
+// SetStoriesHidden sets value of StoriesHidden conditional field.
+func (c *Channel) SetStoriesHidden(value bool) {
+	if value {
+		c.Flags2.Set(1)
+		c.StoriesHidden = true
+	} else {
+		c.Flags2.Unset(1)
+		c.StoriesHidden = false
+	}
+}
+
+// GetStoriesHidden returns value of StoriesHidden conditional field.
+func (c *Channel) GetStoriesHidden() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(1)
+}
+
+// SetStoriesHiddenMin sets value of StoriesHiddenMin conditional field.
+func (c *Channel) SetStoriesHiddenMin(value bool) {
+	if value {
+		c.Flags2.Set(2)
+		c.StoriesHiddenMin = true
+	} else {
+		c.Flags2.Unset(2)
+		c.StoriesHiddenMin = false
+	}
+}
+
+// GetStoriesHiddenMin returns value of StoriesHiddenMin conditional field.
+func (c *Channel) GetStoriesHiddenMin() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(2)
+}
+
+// SetStoriesUnavailable sets value of StoriesUnavailable conditional field.
+func (c *Channel) SetStoriesUnavailable(value bool) {
+	if value {
+		c.Flags2.Set(3)
+		c.StoriesUnavailable = true
+	} else {
+		c.Flags2.Unset(3)
+		c.StoriesUnavailable = false
+	}
+}
+
+// GetStoriesUnavailable returns value of StoriesUnavailable conditional field.
+func (c *Channel) GetStoriesUnavailable() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(3)
+}
+
+// SetSignatureProfiles sets value of SignatureProfiles conditional field.
+func (c *Channel) SetSignatureProfiles(value bool) {
+	if value {
+		c.Flags2.Set(12)
+		c.SignatureProfiles = true
+	} else {
+		c.Flags2.Unset(12)
+		c.SignatureProfiles = false
+	}
+}
+
+// GetSignatureProfiles returns value of SignatureProfiles conditional field.
+func (c *Channel) GetSignatureProfiles() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(12)
+}
+
+// SetAutotranslation sets value of Autotranslation conditional field.
+func (c *Channel) SetAutotranslation(value bool) {
+	if value {
+		c.Flags2.Set(15)
+		c.Autotranslation = true
+	} else {
+		c.Flags2.Unset(15)
+		c.Autotranslation = false
+	}
+}
+
+// GetAutotranslation returns value of Autotranslation conditional field.
+func (c *Channel) GetAutotranslation() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(15)
+}
+
+// SetBroadcastMessagesAllowed sets value of BroadcastMessagesAllowed conditional field.
+func (c *Channel) SetBroadcastMessagesAllowed(value bool) {
+	if value {
+		c.Flags2.Set(16)
+		c.BroadcastMessagesAllowed = true
+	} else {
+		c.Flags2.Unset(16)
+		c.BroadcastMessagesAllowed = false
+	}
+}
+
+// GetBroadcastMessagesAllowed returns value of BroadcastMessagesAllowed conditional field.
+func (c *Channel) GetBroadcastMessagesAllowed() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(16)
+}
+
+// SetMonoforum sets value of Monoforum conditional field.
+func (c *Channel) SetMonoforum(value bool) {
+	if value {
+		c.Flags2.Set(17)
+		c.Monoforum = true
+	} else {
+		c.Flags2.Unset(17)
+		c.Monoforum = false
+	}
+}
+
+// GetMonoforum returns value of Monoforum conditional field.
+func (c *Channel) GetMonoforum() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(17)
+}
+
+// SetForumTabs sets value of ForumTabs conditional field.
+func (c *Channel) SetForumTabs(value bool) {
+	if value {
+		c.Flags2.Set(19)
+		c.ForumTabs = true
+	} else {
+		c.Flags2.Unset(19)
+		c.ForumTabs = false
+	}
+}
+
+// GetForumTabs returns value of ForumTabs conditional field.
+func (c *Channel) GetForumTabs() (value bool) {
+	if c == nil {
+		return
+	}
+	return c.Flags2.Has(19)
+}
+
 // GetID returns value of ID field.
 func (c *Channel) GetID() (value int64) {
 	if c == nil {
@@ -2406,6 +3070,168 @@ func (c *Channel) GetUsernames() (value []Username, ok bool) {
 		return value, false
 	}
 	return c.Usernames, true
+}
+
+// SetStoriesMaxID sets value of StoriesMaxID conditional field.
+func (c *Channel) SetStoriesMaxID(value int) {
+	c.Flags2.Set(4)
+	c.StoriesMaxID = value
+}
+
+// GetStoriesMaxID returns value of StoriesMaxID conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetStoriesMaxID() (value int, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(4) {
+		return value, false
+	}
+	return c.StoriesMaxID, true
+}
+
+// SetColor sets value of Color conditional field.
+func (c *Channel) SetColor(value PeerColor) {
+	c.Flags2.Set(7)
+	c.Color = value
+}
+
+// GetColor returns value of Color conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetColor() (value PeerColor, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(7) {
+		return value, false
+	}
+	return c.Color, true
+}
+
+// SetProfileColor sets value of ProfileColor conditional field.
+func (c *Channel) SetProfileColor(value PeerColor) {
+	c.Flags2.Set(8)
+	c.ProfileColor = value
+}
+
+// GetProfileColor returns value of ProfileColor conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetProfileColor() (value PeerColor, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(8) {
+		return value, false
+	}
+	return c.ProfileColor, true
+}
+
+// SetEmojiStatus sets value of EmojiStatus conditional field.
+func (c *Channel) SetEmojiStatus(value EmojiStatusClass) {
+	c.Flags2.Set(9)
+	c.EmojiStatus = value
+}
+
+// GetEmojiStatus returns value of EmojiStatus conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetEmojiStatus() (value EmojiStatusClass, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(9) {
+		return value, false
+	}
+	return c.EmojiStatus, true
+}
+
+// SetLevel sets value of Level conditional field.
+func (c *Channel) SetLevel(value int) {
+	c.Flags2.Set(10)
+	c.Level = value
+}
+
+// GetLevel returns value of Level conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetLevel() (value int, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(10) {
+		return value, false
+	}
+	return c.Level, true
+}
+
+// SetSubscriptionUntilDate sets value of SubscriptionUntilDate conditional field.
+func (c *Channel) SetSubscriptionUntilDate(value int) {
+	c.Flags2.Set(11)
+	c.SubscriptionUntilDate = value
+}
+
+// GetSubscriptionUntilDate returns value of SubscriptionUntilDate conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetSubscriptionUntilDate() (value int, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(11) {
+		return value, false
+	}
+	return c.SubscriptionUntilDate, true
+}
+
+// SetBotVerificationIcon sets value of BotVerificationIcon conditional field.
+func (c *Channel) SetBotVerificationIcon(value int64) {
+	c.Flags2.Set(13)
+	c.BotVerificationIcon = value
+}
+
+// GetBotVerificationIcon returns value of BotVerificationIcon conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetBotVerificationIcon() (value int64, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(13) {
+		return value, false
+	}
+	return c.BotVerificationIcon, true
+}
+
+// SetSendPaidMessagesStars sets value of SendPaidMessagesStars conditional field.
+func (c *Channel) SetSendPaidMessagesStars(value int64) {
+	c.Flags2.Set(14)
+	c.SendPaidMessagesStars = value
+}
+
+// GetSendPaidMessagesStars returns value of SendPaidMessagesStars conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetSendPaidMessagesStars() (value int64, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(14) {
+		return value, false
+	}
+	return c.SendPaidMessagesStars, true
+}
+
+// SetLinkedMonoforumID sets value of LinkedMonoforumID conditional field.
+func (c *Channel) SetLinkedMonoforumID(value int64) {
+	c.Flags2.Set(18)
+	c.LinkedMonoforumID = value
+}
+
+// GetLinkedMonoforumID returns value of LinkedMonoforumID conditional field and
+// boolean which is true if field was set.
+func (c *Channel) GetLinkedMonoforumID() (value int64, ok bool) {
+	if c == nil {
+		return
+	}
+	if !c.Flags2.Has(18) {
+		return value, false
+	}
+	return c.LinkedMonoforumID, true
 }
 
 // ChannelForbidden represents TL type `channelForbidden#17d493d5`.
@@ -2744,6 +3570,13 @@ const ChatClassName = "Chat"
 //
 // See https://core.telegram.org/type/Chat for reference.
 //
+// Constructors:
+//   - [ChatEmpty]
+//   - [Chat]
+//   - [ChatForbidden]
+//   - [Channel]
+//   - [ChannelForbidden]
+//
 // Example:
 //
 //	g, err := tg.DecodeChat(buf)
@@ -2754,7 +3587,7 @@ const ChatClassName = "Chat"
 //	case *tg.ChatEmpty: // chatEmpty#29562865
 //	case *tg.Chat: // chat#41cbf256
 //	case *tg.ChatForbidden: // chatForbidden#6592a1a7
-//	case *tg.Channel: // channel#83259464
+//	case *tg.Channel: // channel#fe685355
 //	case *tg.ChannelForbidden: // channelForbidden#17d493d5
 //	default: panic(v)
 //	}
@@ -2836,7 +3669,10 @@ type NotEmptyChat interface {
 	// Zero returns true if current object has a zero value.
 	Zero() bool
 
-	// ID of the group
+	// ID of the group, see here »¹ for more info
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/peers#peer-id
 	GetID() (value int64)
 
 	// Title
@@ -2963,7 +3799,10 @@ type FullChat interface {
 	//  1) https://telegram.org/blog/protected-content-delete-by-date-and-more
 	GetNoforwards() (value bool)
 
-	// ID of the group
+	// ID of the group, see here »¹ for more info
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/peers#peer-id
 	GetID() (value int64)
 
 	// Title
@@ -3047,7 +3886,7 @@ func DecodeChat(buf *bin.Buffer) (ChatClass, error) {
 		}
 		return &v, nil
 	case ChannelTypeID:
-		// Decoding channel#83259464.
+		// Decoding channel#fe685355.
 		v := Channel{}
 		if err := v.Decode(buf); err != nil {
 			return nil, fmt.Errorf("unable to decode ChatClass: %w", err)

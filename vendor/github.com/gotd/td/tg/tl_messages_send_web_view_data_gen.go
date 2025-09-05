@@ -32,7 +32,7 @@ var (
 )
 
 // MessagesSendWebViewDataRequest represents TL type `messages.sendWebViewData#dc0242c8`.
-// Used by the user to relay data from an opened reply keyboard bot web app¹ to the bot
+// Used by the user to relay data from an opened reply keyboard bot mini app¹ to the bot
 // that owns it.
 //
 // Links:
@@ -258,11 +258,15 @@ func (s *MessagesSendWebViewDataRequest) GetData() (value string) {
 }
 
 // MessagesSendWebViewData invokes method messages.sendWebViewData#dc0242c8 returning error if any.
-// Used by the user to relay data from an opened reply keyboard bot web app¹ to the bot
+// Used by the user to relay data from an opened reply keyboard bot mini app¹ to the bot
 // that owns it.
 //
 // Links:
 //  1. https://core.telegram.org/api/bots/webapps
+//
+// Possible errors:
+//
+//	400 BOT_INVALID: This is not a valid bot.
 //
 // See https://core.telegram.org/method/messages.sendWebViewData for reference.
 func (c *Client) MessagesSendWebViewData(ctx context.Context, request *MessagesSendWebViewDataRequest) (UpdatesClass, error) {

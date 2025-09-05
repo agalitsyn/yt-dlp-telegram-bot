@@ -31,18 +31,30 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// StoriesGetStoriesArchiveRequest represents TL type `stories.getStoriesArchive#1f5bc5d2`.
+// StoriesGetStoriesArchiveRequest represents TL type `stories.getStoriesArchive#b4352016`.
+// Fetch the story archive »¹ of a peer we control.
+//
+// Links:
+//  1. https://core.telegram.org/api/stories#pinned-or-archived-stories
 //
 // See https://core.telegram.org/method/stories.getStoriesArchive for reference.
 type StoriesGetStoriesArchiveRequest struct {
-	// OffsetID field of StoriesGetStoriesArchiveRequest.
+	// Peer whose archived stories should be fetched
+	Peer InputPeerClass
+	// Offsets for pagination, for more info click here¹
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/offsets
 	OffsetID int
-	// Limit field of StoriesGetStoriesArchiveRequest.
+	// Maximum number of results to return, see pagination¹
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/offsets
 	Limit int
 }
 
 // StoriesGetStoriesArchiveRequestTypeID is TL type id of StoriesGetStoriesArchiveRequest.
-const StoriesGetStoriesArchiveRequestTypeID = 0x1f5bc5d2
+const StoriesGetStoriesArchiveRequestTypeID = 0xb4352016
 
 // Ensuring interfaces in compile-time for StoriesGetStoriesArchiveRequest.
 var (
@@ -55,6 +67,9 @@ var (
 func (g *StoriesGetStoriesArchiveRequest) Zero() bool {
 	if g == nil {
 		return true
+	}
+	if !(g.Peer == nil) {
+		return false
 	}
 	if !(g.OffsetID == 0) {
 		return false
@@ -77,9 +92,11 @@ func (g *StoriesGetStoriesArchiveRequest) String() string {
 
 // FillFrom fills StoriesGetStoriesArchiveRequest from given interface.
 func (g *StoriesGetStoriesArchiveRequest) FillFrom(from interface {
+	GetPeer() (value InputPeerClass)
 	GetOffsetID() (value int)
 	GetLimit() (value int)
 }) {
+	g.Peer = from.GetPeer()
 	g.OffsetID = from.GetOffsetID()
 	g.Limit = from.GetLimit()
 }
@@ -108,6 +125,10 @@ func (g *StoriesGetStoriesArchiveRequest) TypeInfo() tdp.Type {
 	}
 	typ.Fields = []tdp.Field{
 		{
+			Name:       "Peer",
+			SchemaName: "peer",
+		},
+		{
 			Name:       "OffsetID",
 			SchemaName: "offset_id",
 		},
@@ -122,7 +143,7 @@ func (g *StoriesGetStoriesArchiveRequest) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (g *StoriesGetStoriesArchiveRequest) Encode(b *bin.Buffer) error {
 	if g == nil {
-		return fmt.Errorf("can't encode stories.getStoriesArchive#1f5bc5d2 as nil")
+		return fmt.Errorf("can't encode stories.getStoriesArchive#b4352016 as nil")
 	}
 	b.PutID(StoriesGetStoriesArchiveRequestTypeID)
 	return g.EncodeBare(b)
@@ -131,7 +152,13 @@ func (g *StoriesGetStoriesArchiveRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (g *StoriesGetStoriesArchiveRequest) EncodeBare(b *bin.Buffer) error {
 	if g == nil {
-		return fmt.Errorf("can't encode stories.getStoriesArchive#1f5bc5d2 as nil")
+		return fmt.Errorf("can't encode stories.getStoriesArchive#b4352016 as nil")
+	}
+	if g.Peer == nil {
+		return fmt.Errorf("unable to encode stories.getStoriesArchive#b4352016: field peer is nil")
+	}
+	if err := g.Peer.Encode(b); err != nil {
+		return fmt.Errorf("unable to encode stories.getStoriesArchive#b4352016: field peer: %w", err)
 	}
 	b.PutInt(g.OffsetID)
 	b.PutInt(g.Limit)
@@ -141,10 +168,10 @@ func (g *StoriesGetStoriesArchiveRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (g *StoriesGetStoriesArchiveRequest) Decode(b *bin.Buffer) error {
 	if g == nil {
-		return fmt.Errorf("can't decode stories.getStoriesArchive#1f5bc5d2 to nil")
+		return fmt.Errorf("can't decode stories.getStoriesArchive#b4352016 to nil")
 	}
 	if err := b.ConsumeID(StoriesGetStoriesArchiveRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode stories.getStoriesArchive#1f5bc5d2: %w", err)
+		return fmt.Errorf("unable to decode stories.getStoriesArchive#b4352016: %w", err)
 	}
 	return g.DecodeBare(b)
 }
@@ -152,23 +179,38 @@ func (g *StoriesGetStoriesArchiveRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (g *StoriesGetStoriesArchiveRequest) DecodeBare(b *bin.Buffer) error {
 	if g == nil {
-		return fmt.Errorf("can't decode stories.getStoriesArchive#1f5bc5d2 to nil")
+		return fmt.Errorf("can't decode stories.getStoriesArchive#b4352016 to nil")
+	}
+	{
+		value, err := DecodeInputPeer(b)
+		if err != nil {
+			return fmt.Errorf("unable to decode stories.getStoriesArchive#b4352016: field peer: %w", err)
+		}
+		g.Peer = value
 	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.getStoriesArchive#1f5bc5d2: field offset_id: %w", err)
+			return fmt.Errorf("unable to decode stories.getStoriesArchive#b4352016: field offset_id: %w", err)
 		}
 		g.OffsetID = value
 	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.getStoriesArchive#1f5bc5d2: field limit: %w", err)
+			return fmt.Errorf("unable to decode stories.getStoriesArchive#b4352016: field limit: %w", err)
 		}
 		g.Limit = value
 	}
 	return nil
+}
+
+// GetPeer returns value of Peer field.
+func (g *StoriesGetStoriesArchiveRequest) GetPeer() (value InputPeerClass) {
+	if g == nil {
+		return
+	}
+	return g.Peer
 }
 
 // GetOffsetID returns value of OffsetID field.
@@ -187,7 +229,16 @@ func (g *StoriesGetStoriesArchiveRequest) GetLimit() (value int) {
 	return g.Limit
 }
 
-// StoriesGetStoriesArchive invokes method stories.getStoriesArchive#1f5bc5d2 returning error if any.
+// StoriesGetStoriesArchive invokes method stories.getStoriesArchive#b4352016 returning error if any.
+// Fetch the story archive »¹ of a peer we control.
+//
+// Links:
+//  1. https://core.telegram.org/api/stories#pinned-or-archived-stories
+//
+// Possible errors:
+//
+//	400 CHAT_ADMIN_REQUIRED: You must be an admin in this chat to do this.
+//	400 PEER_ID_INVALID: The provided peer id is invalid.
 //
 // See https://core.telegram.org/method/stories.getStoriesArchive for reference.
 func (c *Client) StoriesGetStoriesArchive(ctx context.Context, request *StoriesGetStoriesArchiveRequest) (*StoriesStories, error) {

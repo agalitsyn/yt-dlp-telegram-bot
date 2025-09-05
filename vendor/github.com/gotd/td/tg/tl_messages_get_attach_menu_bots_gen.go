@@ -32,14 +32,14 @@ var (
 )
 
 // MessagesGetAttachMenuBotsRequest represents TL type `messages.getAttachMenuBots#16fcc2cb`.
-// Returns installed attachment menu bot web apps »¹
+// Returns installed attachment menu bot mini apps »¹
 //
 // Links:
 //  1. https://core.telegram.org/api/bots/attach
 //
 // See https://core.telegram.org/method/messages.getAttachMenuBots for reference.
 type MessagesGetAttachMenuBotsRequest struct {
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹.
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -168,7 +168,7 @@ func (g *MessagesGetAttachMenuBotsRequest) GetHash() (value int64) {
 }
 
 // MessagesGetAttachMenuBots invokes method messages.getAttachMenuBots#16fcc2cb returning error if any.
-// Returns installed attachment menu bot web apps »¹
+// Returns installed attachment menu bot mini apps »¹
 //
 // Links:
 //  1. https://core.telegram.org/api/bots/attach

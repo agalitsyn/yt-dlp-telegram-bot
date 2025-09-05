@@ -6,12 +6,12 @@ import (
 	"net"
 	"net/http"
 
-	"nhooyr.io/websocket"
+	"github.com/coder/websocket"
 
-	"github.com/gotd/td/internal/mtproxy/obfuscated2"
-	"github.com/gotd/td/internal/proto/codec"
-	"github.com/gotd/td/internal/tdsync"
-	"github.com/gotd/td/internal/wsutil"
+	"github.com/gotd/td/mtproxy/obfuscated2"
+	"github.com/gotd/td/proto/codec"
+	"github.com/gotd/td/tdsync"
+	"github.com/gotd/td/wsutil"
 )
 
 type wsListener struct {

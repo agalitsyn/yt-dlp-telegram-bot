@@ -41,6 +41,16 @@ type MessagesSearchGlobalRequest struct {
 	// Links:
 	//  1) https://core.telegram.org/mtproto/TL-combinators#conditional-fields
 	Flags bin.Fields
+	// If set, only returns results from channels (used in the global channel search tab
+	// »¹).
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/search#global-search
+	BroadcastsOnly bool
+	// Whether to search only in groups
+	GroupsOnly bool
+	// Whether to search only in private chats
+	UsersOnly bool
 	// Peer folder ID, for more info click here¹
 	//
 	// Links:
@@ -98,6 +108,15 @@ func (s *MessagesSearchGlobalRequest) Zero() bool {
 	if !(s.Flags.Zero()) {
 		return false
 	}
+	if !(s.BroadcastsOnly == false) {
+		return false
+	}
+	if !(s.GroupsOnly == false) {
+		return false
+	}
+	if !(s.UsersOnly == false) {
+		return false
+	}
 	if !(s.FolderID == 0) {
 		return false
 	}
@@ -140,6 +159,9 @@ func (s *MessagesSearchGlobalRequest) String() string {
 
 // FillFrom fills MessagesSearchGlobalRequest from given interface.
 func (s *MessagesSearchGlobalRequest) FillFrom(from interface {
+	GetBroadcastsOnly() (value bool)
+	GetGroupsOnly() (value bool)
+	GetUsersOnly() (value bool)
 	GetFolderID() (value int, ok bool)
 	GetQ() (value string)
 	GetFilter() (value MessagesFilterClass)
@@ -150,6 +172,9 @@ func (s *MessagesSearchGlobalRequest) FillFrom(from interface {
 	GetOffsetID() (value int)
 	GetLimit() (value int)
 }) {
+	s.BroadcastsOnly = from.GetBroadcastsOnly()
+	s.GroupsOnly = from.GetGroupsOnly()
+	s.UsersOnly = from.GetUsersOnly()
 	if val, ok := from.GetFolderID(); ok {
 		s.FolderID = val
 	}
@@ -187,6 +212,21 @@ func (s *MessagesSearchGlobalRequest) TypeInfo() tdp.Type {
 		return typ
 	}
 	typ.Fields = []tdp.Field{
+		{
+			Name:       "BroadcastsOnly",
+			SchemaName: "broadcasts_only",
+			Null:       !s.Flags.Has(1),
+		},
+		{
+			Name:       "GroupsOnly",
+			SchemaName: "groups_only",
+			Null:       !s.Flags.Has(2),
+		},
+		{
+			Name:       "UsersOnly",
+			SchemaName: "users_only",
+			Null:       !s.Flags.Has(3),
+		},
 		{
 			Name:       "FolderID",
 			SchemaName: "folder_id",
@@ -230,6 +270,15 @@ func (s *MessagesSearchGlobalRequest) TypeInfo() tdp.Type {
 
 // SetFlags sets flags for non-zero fields.
 func (s *MessagesSearchGlobalRequest) SetFlags() {
+	if !(s.BroadcastsOnly == false) {
+		s.Flags.Set(1)
+	}
+	if !(s.GroupsOnly == false) {
+		s.Flags.Set(2)
+	}
+	if !(s.UsersOnly == false) {
+		s.Flags.Set(3)
+	}
 	if !(s.FolderID == 0) {
 		s.Flags.Set(0)
 	}
@@ -298,6 +347,9 @@ func (s *MessagesSearchGlobalRequest) DecodeBare(b *bin.Buffer) error {
 			return fmt.Errorf("unable to decode messages.searchGlobal#4bc6589a: field flags: %w", err)
 		}
 	}
+	s.BroadcastsOnly = s.Flags.Has(1)
+	s.GroupsOnly = s.Flags.Has(2)
+	s.UsersOnly = s.Flags.Has(3)
 	if s.Flags.Has(0) {
 		value, err := b.Int()
 		if err != nil {
@@ -362,6 +414,63 @@ func (s *MessagesSearchGlobalRequest) DecodeBare(b *bin.Buffer) error {
 		s.Limit = value
 	}
 	return nil
+}
+
+// SetBroadcastsOnly sets value of BroadcastsOnly conditional field.
+func (s *MessagesSearchGlobalRequest) SetBroadcastsOnly(value bool) {
+	if value {
+		s.Flags.Set(1)
+		s.BroadcastsOnly = true
+	} else {
+		s.Flags.Unset(1)
+		s.BroadcastsOnly = false
+	}
+}
+
+// GetBroadcastsOnly returns value of BroadcastsOnly conditional field.
+func (s *MessagesSearchGlobalRequest) GetBroadcastsOnly() (value bool) {
+	if s == nil {
+		return
+	}
+	return s.Flags.Has(1)
+}
+
+// SetGroupsOnly sets value of GroupsOnly conditional field.
+func (s *MessagesSearchGlobalRequest) SetGroupsOnly(value bool) {
+	if value {
+		s.Flags.Set(2)
+		s.GroupsOnly = true
+	} else {
+		s.Flags.Unset(2)
+		s.GroupsOnly = false
+	}
+}
+
+// GetGroupsOnly returns value of GroupsOnly conditional field.
+func (s *MessagesSearchGlobalRequest) GetGroupsOnly() (value bool) {
+	if s == nil {
+		return
+	}
+	return s.Flags.Has(2)
+}
+
+// SetUsersOnly sets value of UsersOnly conditional field.
+func (s *MessagesSearchGlobalRequest) SetUsersOnly(value bool) {
+	if value {
+		s.Flags.Set(3)
+		s.UsersOnly = true
+	} else {
+		s.Flags.Unset(3)
+		s.UsersOnly = false
+	}
+}
+
+// GetUsersOnly returns value of UsersOnly conditional field.
+func (s *MessagesSearchGlobalRequest) GetUsersOnly() (value bool) {
+	if s == nil {
+		return
+	}
+	return s.Flags.Has(3)
 }
 
 // SetFolderID sets value of FolderID conditional field.
@@ -452,6 +561,7 @@ func (s *MessagesSearchGlobalRequest) GetLimit() (value int) {
 // Possible errors:
 //
 //	400 FOLDER_ID_INVALID: Invalid folder ID.
+//	400 INPUT_FILTER_INVALID: The specified filter is invalid.
 //	400 SEARCH_QUERY_EMPTY: The search query is empty.
 //
 // See https://core.telegram.org/method/messages.searchGlobal for reference.

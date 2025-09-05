@@ -51,7 +51,7 @@ type PhotosUploadContactProfilePhotoRequest struct {
 	//  1) https://core.telegram.org/constructor/messageActionSuggestProfilePhoto
 	Suggest bool
 	// If set, removes a previously set personal profile picture (does not affect suggested
-	// profile pictures, to remove them simply deleted the messageActionSuggestProfilePhoto¹
+	// profile pictures, to remove them simply delete the messageActionSuggestProfilePhoto¹
 	// service message with messages.deleteMessages²).
 	//
 	// Links:
@@ -494,10 +494,10 @@ func (u *PhotosUploadContactProfilePhotoRequest) GetVideoEmojiMarkup() (value Vi
 //
 // Possible errors:
 //
+//	400 CONTACT_MISSING: The specified user is not a contact.
 //	400 USER_ID_INVALID: The provided user ID is invalid.
 //
 // See https://core.telegram.org/method/photos.uploadContactProfilePhoto for reference.
-// Can be used by bots.
 func (c *Client) PhotosUploadContactProfilePhoto(ctx context.Context, request *PhotosUploadContactProfilePhotoRequest) (*PhotosPhoto, error) {
 	var result PhotosPhoto
 

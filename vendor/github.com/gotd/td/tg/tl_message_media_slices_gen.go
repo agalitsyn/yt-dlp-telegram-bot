@@ -272,6 +272,58 @@ func (s MessageMediaClassArray) AsMessageMediaStory() (to MessageMediaStoryArray
 	return to
 }
 
+// AsMessageMediaGiveaway returns copy with only MessageMediaGiveaway constructors.
+func (s MessageMediaClassArray) AsMessageMediaGiveaway() (to MessageMediaGiveawayArray) {
+	for _, elem := range s {
+		value, ok := elem.(*MessageMediaGiveaway)
+		if !ok {
+			continue
+		}
+		to = append(to, *value)
+	}
+
+	return to
+}
+
+// AsMessageMediaGiveawayResults returns copy with only MessageMediaGiveawayResults constructors.
+func (s MessageMediaClassArray) AsMessageMediaGiveawayResults() (to MessageMediaGiveawayResultsArray) {
+	for _, elem := range s {
+		value, ok := elem.(*MessageMediaGiveawayResults)
+		if !ok {
+			continue
+		}
+		to = append(to, *value)
+	}
+
+	return to
+}
+
+// AsMessageMediaPaidMedia returns copy with only MessageMediaPaidMedia constructors.
+func (s MessageMediaClassArray) AsMessageMediaPaidMedia() (to MessageMediaPaidMediaArray) {
+	for _, elem := range s {
+		value, ok := elem.(*MessageMediaPaidMedia)
+		if !ok {
+			continue
+		}
+		to = append(to, *value)
+	}
+
+	return to
+}
+
+// AsMessageMediaToDo returns copy with only MessageMediaToDo constructors.
+func (s MessageMediaClassArray) AsMessageMediaToDo() (to MessageMediaToDoArray) {
+	for _, elem := range s {
+		value, ok := elem.(*MessageMediaToDo)
+		if !ok {
+			continue
+		}
+		to = append(to, *value)
+	}
+
+	return to
+}
+
 // MessageMediaPhotoArray is adapter for slice of MessageMediaPhoto.
 type MessageMediaPhotoArray []MessageMediaPhoto
 
@@ -1282,4 +1334,332 @@ func (s MessageMediaStoryArray) ToMap() map[int]MessageMediaStory {
 	r := make(map[int]MessageMediaStory, len(s))
 	s.FillMap(r)
 	return r
+}
+
+// MessageMediaGiveawayArray is adapter for slice of MessageMediaGiveaway.
+type MessageMediaGiveawayArray []MessageMediaGiveaway
+
+// Sort sorts slice of MessageMediaGiveaway.
+func (s MessageMediaGiveawayArray) Sort(less func(a, b MessageMediaGiveaway) bool) MessageMediaGiveawayArray {
+	sort.Slice(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// SortStable sorts slice of MessageMediaGiveaway.
+func (s MessageMediaGiveawayArray) SortStable(less func(a, b MessageMediaGiveaway) bool) MessageMediaGiveawayArray {
+	sort.SliceStable(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// Retain filters in-place slice of MessageMediaGiveaway.
+func (s MessageMediaGiveawayArray) Retain(keep func(x MessageMediaGiveaway) bool) MessageMediaGiveawayArray {
+	n := 0
+	for _, x := range s {
+		if keep(x) {
+			s[n] = x
+			n++
+		}
+	}
+	s = s[:n]
+
+	return s
+}
+
+// First returns first element of slice (if exists).
+func (s MessageMediaGiveawayArray) First() (v MessageMediaGiveaway, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[0], true
+}
+
+// Last returns last element of slice (if exists).
+func (s MessageMediaGiveawayArray) Last() (v MessageMediaGiveaway, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[len(s)-1], true
+}
+
+// PopFirst returns first element of slice (if exists) and deletes it.
+func (s *MessageMediaGiveawayArray) PopFirst() (v MessageMediaGiveaway, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[0]
+
+	// Delete by index from SliceTricks.
+	copy(a[0:], a[1:])
+	var zero MessageMediaGiveaway
+	a[len(a)-1] = zero
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// Pop returns last element of slice (if exists) and deletes it.
+func (s *MessageMediaGiveawayArray) Pop() (v MessageMediaGiveaway, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[len(a)-1]
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// MessageMediaGiveawayResultsArray is adapter for slice of MessageMediaGiveawayResults.
+type MessageMediaGiveawayResultsArray []MessageMediaGiveawayResults
+
+// Sort sorts slice of MessageMediaGiveawayResults.
+func (s MessageMediaGiveawayResultsArray) Sort(less func(a, b MessageMediaGiveawayResults) bool) MessageMediaGiveawayResultsArray {
+	sort.Slice(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// SortStable sorts slice of MessageMediaGiveawayResults.
+func (s MessageMediaGiveawayResultsArray) SortStable(less func(a, b MessageMediaGiveawayResults) bool) MessageMediaGiveawayResultsArray {
+	sort.SliceStable(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// Retain filters in-place slice of MessageMediaGiveawayResults.
+func (s MessageMediaGiveawayResultsArray) Retain(keep func(x MessageMediaGiveawayResults) bool) MessageMediaGiveawayResultsArray {
+	n := 0
+	for _, x := range s {
+		if keep(x) {
+			s[n] = x
+			n++
+		}
+	}
+	s = s[:n]
+
+	return s
+}
+
+// First returns first element of slice (if exists).
+func (s MessageMediaGiveawayResultsArray) First() (v MessageMediaGiveawayResults, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[0], true
+}
+
+// Last returns last element of slice (if exists).
+func (s MessageMediaGiveawayResultsArray) Last() (v MessageMediaGiveawayResults, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[len(s)-1], true
+}
+
+// PopFirst returns first element of slice (if exists) and deletes it.
+func (s *MessageMediaGiveawayResultsArray) PopFirst() (v MessageMediaGiveawayResults, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[0]
+
+	// Delete by index from SliceTricks.
+	copy(a[0:], a[1:])
+	var zero MessageMediaGiveawayResults
+	a[len(a)-1] = zero
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// Pop returns last element of slice (if exists) and deletes it.
+func (s *MessageMediaGiveawayResultsArray) Pop() (v MessageMediaGiveawayResults, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[len(a)-1]
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// MessageMediaPaidMediaArray is adapter for slice of MessageMediaPaidMedia.
+type MessageMediaPaidMediaArray []MessageMediaPaidMedia
+
+// Sort sorts slice of MessageMediaPaidMedia.
+func (s MessageMediaPaidMediaArray) Sort(less func(a, b MessageMediaPaidMedia) bool) MessageMediaPaidMediaArray {
+	sort.Slice(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// SortStable sorts slice of MessageMediaPaidMedia.
+func (s MessageMediaPaidMediaArray) SortStable(less func(a, b MessageMediaPaidMedia) bool) MessageMediaPaidMediaArray {
+	sort.SliceStable(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// Retain filters in-place slice of MessageMediaPaidMedia.
+func (s MessageMediaPaidMediaArray) Retain(keep func(x MessageMediaPaidMedia) bool) MessageMediaPaidMediaArray {
+	n := 0
+	for _, x := range s {
+		if keep(x) {
+			s[n] = x
+			n++
+		}
+	}
+	s = s[:n]
+
+	return s
+}
+
+// First returns first element of slice (if exists).
+func (s MessageMediaPaidMediaArray) First() (v MessageMediaPaidMedia, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[0], true
+}
+
+// Last returns last element of slice (if exists).
+func (s MessageMediaPaidMediaArray) Last() (v MessageMediaPaidMedia, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[len(s)-1], true
+}
+
+// PopFirst returns first element of slice (if exists) and deletes it.
+func (s *MessageMediaPaidMediaArray) PopFirst() (v MessageMediaPaidMedia, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[0]
+
+	// Delete by index from SliceTricks.
+	copy(a[0:], a[1:])
+	var zero MessageMediaPaidMedia
+	a[len(a)-1] = zero
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// Pop returns last element of slice (if exists) and deletes it.
+func (s *MessageMediaPaidMediaArray) Pop() (v MessageMediaPaidMedia, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[len(a)-1]
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// MessageMediaToDoArray is adapter for slice of MessageMediaToDo.
+type MessageMediaToDoArray []MessageMediaToDo
+
+// Sort sorts slice of MessageMediaToDo.
+func (s MessageMediaToDoArray) Sort(less func(a, b MessageMediaToDo) bool) MessageMediaToDoArray {
+	sort.Slice(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// SortStable sorts slice of MessageMediaToDo.
+func (s MessageMediaToDoArray) SortStable(less func(a, b MessageMediaToDo) bool) MessageMediaToDoArray {
+	sort.SliceStable(s, func(i, j int) bool {
+		return less(s[i], s[j])
+	})
+	return s
+}
+
+// Retain filters in-place slice of MessageMediaToDo.
+func (s MessageMediaToDoArray) Retain(keep func(x MessageMediaToDo) bool) MessageMediaToDoArray {
+	n := 0
+	for _, x := range s {
+		if keep(x) {
+			s[n] = x
+			n++
+		}
+	}
+	s = s[:n]
+
+	return s
+}
+
+// First returns first element of slice (if exists).
+func (s MessageMediaToDoArray) First() (v MessageMediaToDo, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[0], true
+}
+
+// Last returns last element of slice (if exists).
+func (s MessageMediaToDoArray) Last() (v MessageMediaToDo, ok bool) {
+	if len(s) < 1 {
+		return
+	}
+	return s[len(s)-1], true
+}
+
+// PopFirst returns first element of slice (if exists) and deletes it.
+func (s *MessageMediaToDoArray) PopFirst() (v MessageMediaToDo, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[0]
+
+	// Delete by index from SliceTricks.
+	copy(a[0:], a[1:])
+	var zero MessageMediaToDo
+	a[len(a)-1] = zero
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
+}
+
+// Pop returns last element of slice (if exists) and deletes it.
+func (s *MessageMediaToDoArray) Pop() (v MessageMediaToDo, ok bool) {
+	if s == nil || len(*s) < 1 {
+		return
+	}
+
+	a := *s
+	v = a[len(a)-1]
+	a = a[:len(a)-1]
+	*s = a
+
+	return v, true
 }

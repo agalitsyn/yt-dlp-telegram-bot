@@ -8,7 +8,7 @@ import (
 	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/bin"
-	"github.com/gotd/td/internal/crypto"
+	"github.com/gotd/td/crypto"
 	"github.com/gotd/td/telegram/uploader/source"
 	"github.com/gotd/td/tg"
 )
@@ -81,6 +81,10 @@ func (u *Uploader) Upload(ctx context.Context, upload *Upload) (tg.InputFileClas
 
 	if err := u.initUpload(upload); err != nil {
 		return nil, err
+	}
+	if upload.totalBytes == -1 {
+		upload.big = true
+		upload.totalParts = -1
 	}
 
 	if !upload.big {

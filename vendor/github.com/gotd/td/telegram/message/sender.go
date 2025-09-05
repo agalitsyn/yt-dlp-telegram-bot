@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-faster/errors"
 
-	"github.com/gotd/td/internal/crypto"
+	"github.com/gotd/td/crypto"
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/telegram/uploader"
 	"github.com/gotd/td/tg"
@@ -160,7 +160,7 @@ func (s *Sender) setTyping(ctx context.Context, req *tg.MessagesSetTypingRequest
 }
 
 // report reports a message in a chat for violation of Telegram's Terms of Service.
-func (s *Sender) report(ctx context.Context, req *tg.MessagesReportRequest) (bool, error) {
+func (s *Sender) report(ctx context.Context, req *tg.MessagesReportRequest) (tg.ReportResultClass, error) {
 	return s.raw.MessagesReport(ctx, req)
 }
 

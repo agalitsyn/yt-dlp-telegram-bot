@@ -31,7 +31,7 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// MessagesExportChatInviteRequest represents TL type `messages.exportChatInvite#a02ce5d5`.
+// MessagesExportChatInviteRequest represents TL type `messages.exportChatInvite#a455de90`.
 // Export an invite link for a chat
 //
 // See https://core.telegram.org/method/messages.exportChatInvite for reference.
@@ -62,10 +62,18 @@ type MessagesExportChatInviteRequest struct {
 	//
 	// Use SetTitle and GetTitle helpers.
 	Title string
+	// For Telegram Star subscriptions »¹, contains the pricing of the subscription the
+	// user must activate to join the private channel.
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stars#star-subscriptions
+	//
+	// Use SetSubscriptionPricing and GetSubscriptionPricing helpers.
+	SubscriptionPricing StarsSubscriptionPricing
 }
 
 // MessagesExportChatInviteRequestTypeID is TL type id of MessagesExportChatInviteRequest.
-const MessagesExportChatInviteRequestTypeID = 0xa02ce5d5
+const MessagesExportChatInviteRequestTypeID = 0xa455de90
 
 // Ensuring interfaces in compile-time for MessagesExportChatInviteRequest.
 var (
@@ -100,6 +108,9 @@ func (e *MessagesExportChatInviteRequest) Zero() bool {
 	if !(e.Title == "") {
 		return false
 	}
+	if !(e.SubscriptionPricing.Zero()) {
+		return false
+	}
 
 	return true
 }
@@ -121,6 +132,7 @@ func (e *MessagesExportChatInviteRequest) FillFrom(from interface {
 	GetExpireDate() (value int, ok bool)
 	GetUsageLimit() (value int, ok bool)
 	GetTitle() (value string, ok bool)
+	GetSubscriptionPricing() (value StarsSubscriptionPricing, ok bool)
 }) {
 	e.LegacyRevokePermanent = from.GetLegacyRevokePermanent()
 	e.RequestNeeded = from.GetRequestNeeded()
@@ -135,6 +147,10 @@ func (e *MessagesExportChatInviteRequest) FillFrom(from interface {
 
 	if val, ok := from.GetTitle(); ok {
 		e.Title = val
+	}
+
+	if val, ok := from.GetSubscriptionPricing(); ok {
+		e.SubscriptionPricing = val
 	}
 
 }
@@ -191,6 +207,11 @@ func (e *MessagesExportChatInviteRequest) TypeInfo() tdp.Type {
 			SchemaName: "title",
 			Null:       !e.Flags.Has(4),
 		},
+		{
+			Name:       "SubscriptionPricing",
+			SchemaName: "subscription_pricing",
+			Null:       !e.Flags.Has(5),
+		},
 	}
 	return typ
 }
@@ -212,12 +233,15 @@ func (e *MessagesExportChatInviteRequest) SetFlags() {
 	if !(e.Title == "") {
 		e.Flags.Set(4)
 	}
+	if !(e.SubscriptionPricing.Zero()) {
+		e.Flags.Set(5)
+	}
 }
 
 // Encode implements bin.Encoder.
 func (e *MessagesExportChatInviteRequest) Encode(b *bin.Buffer) error {
 	if e == nil {
-		return fmt.Errorf("can't encode messages.exportChatInvite#a02ce5d5 as nil")
+		return fmt.Errorf("can't encode messages.exportChatInvite#a455de90 as nil")
 	}
 	b.PutID(MessagesExportChatInviteRequestTypeID)
 	return e.EncodeBare(b)
@@ -226,17 +250,17 @@ func (e *MessagesExportChatInviteRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (e *MessagesExportChatInviteRequest) EncodeBare(b *bin.Buffer) error {
 	if e == nil {
-		return fmt.Errorf("can't encode messages.exportChatInvite#a02ce5d5 as nil")
+		return fmt.Errorf("can't encode messages.exportChatInvite#a455de90 as nil")
 	}
 	e.SetFlags()
 	if err := e.Flags.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode messages.exportChatInvite#a02ce5d5: field flags: %w", err)
+		return fmt.Errorf("unable to encode messages.exportChatInvite#a455de90: field flags: %w", err)
 	}
 	if e.Peer == nil {
-		return fmt.Errorf("unable to encode messages.exportChatInvite#a02ce5d5: field peer is nil")
+		return fmt.Errorf("unable to encode messages.exportChatInvite#a455de90: field peer is nil")
 	}
 	if err := e.Peer.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode messages.exportChatInvite#a02ce5d5: field peer: %w", err)
+		return fmt.Errorf("unable to encode messages.exportChatInvite#a455de90: field peer: %w", err)
 	}
 	if e.Flags.Has(0) {
 		b.PutInt(e.ExpireDate)
@@ -247,16 +271,21 @@ func (e *MessagesExportChatInviteRequest) EncodeBare(b *bin.Buffer) error {
 	if e.Flags.Has(4) {
 		b.PutString(e.Title)
 	}
+	if e.Flags.Has(5) {
+		if err := e.SubscriptionPricing.Encode(b); err != nil {
+			return fmt.Errorf("unable to encode messages.exportChatInvite#a455de90: field subscription_pricing: %w", err)
+		}
+	}
 	return nil
 }
 
 // Decode implements bin.Decoder.
 func (e *MessagesExportChatInviteRequest) Decode(b *bin.Buffer) error {
 	if e == nil {
-		return fmt.Errorf("can't decode messages.exportChatInvite#a02ce5d5 to nil")
+		return fmt.Errorf("can't decode messages.exportChatInvite#a455de90 to nil")
 	}
 	if err := b.ConsumeID(MessagesExportChatInviteRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: %w", err)
+		return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: %w", err)
 	}
 	return e.DecodeBare(b)
 }
@@ -264,11 +293,11 @@ func (e *MessagesExportChatInviteRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (e *MessagesExportChatInviteRequest) DecodeBare(b *bin.Buffer) error {
 	if e == nil {
-		return fmt.Errorf("can't decode messages.exportChatInvite#a02ce5d5 to nil")
+		return fmt.Errorf("can't decode messages.exportChatInvite#a455de90 to nil")
 	}
 	{
 		if err := e.Flags.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: field flags: %w", err)
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field flags: %w", err)
 		}
 	}
 	e.LegacyRevokePermanent = e.Flags.Has(2)
@@ -276,30 +305,35 @@ func (e *MessagesExportChatInviteRequest) DecodeBare(b *bin.Buffer) error {
 	{
 		value, err := DecodeInputPeer(b)
 		if err != nil {
-			return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: field peer: %w", err)
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field peer: %w", err)
 		}
 		e.Peer = value
 	}
 	if e.Flags.Has(0) {
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: field expire_date: %w", err)
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field expire_date: %w", err)
 		}
 		e.ExpireDate = value
 	}
 	if e.Flags.Has(1) {
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: field usage_limit: %w", err)
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field usage_limit: %w", err)
 		}
 		e.UsageLimit = value
 	}
 	if e.Flags.Has(4) {
 		value, err := b.String()
 		if err != nil {
-			return fmt.Errorf("unable to decode messages.exportChatInvite#a02ce5d5: field title: %w", err)
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field title: %w", err)
 		}
 		e.Title = value
+	}
+	if e.Flags.Has(5) {
+		if err := e.SubscriptionPricing.Decode(b); err != nil {
+			return fmt.Errorf("unable to decode messages.exportChatInvite#a455de90: field subscription_pricing: %w", err)
+		}
 	}
 	return nil
 }
@@ -404,7 +438,25 @@ func (e *MessagesExportChatInviteRequest) GetTitle() (value string, ok bool) {
 	return e.Title, true
 }
 
-// MessagesExportChatInvite invokes method messages.exportChatInvite#a02ce5d5 returning error if any.
+// SetSubscriptionPricing sets value of SubscriptionPricing conditional field.
+func (e *MessagesExportChatInviteRequest) SetSubscriptionPricing(value StarsSubscriptionPricing) {
+	e.Flags.Set(5)
+	e.SubscriptionPricing = value
+}
+
+// GetSubscriptionPricing returns value of SubscriptionPricing conditional field and
+// boolean which is true if field was set.
+func (e *MessagesExportChatInviteRequest) GetSubscriptionPricing() (value StarsSubscriptionPricing, ok bool) {
+	if e == nil {
+		return
+	}
+	if !e.Flags.Has(5) {
+		return value, false
+	}
+	return e.SubscriptionPricing, true
+}
+
+// MessagesExportChatInvite invokes method messages.exportChatInvite#a455de90 returning error if any.
 // Export an invite link for a chat
 //
 // Possible errors:
@@ -415,7 +467,10 @@ func (e *MessagesExportChatInviteRequest) GetTitle() (value string, ok bool) {
 //	400 CHAT_ID_INVALID: The provided chat id is invalid.
 //	403 CHAT_WRITE_FORBIDDEN: You can't write in this chat.
 //	400 EXPIRE_DATE_INVALID: The specified expiration date is invalid.
+//	400 MSG_ID_INVALID: Invalid message ID provided.
 //	400 PEER_ID_INVALID: The provided peer id is invalid.
+//	400 PRICING_CHAT_INVALID: The pricing for the subscription is invalid, the maximum price is specified in the stars_subscription_amount_max config key ».
+//	400 SUBSCRIPTION_PERIOD_INVALID: The specified subscription_pricing.period is invalid.
 //	400 USAGE_LIMIT_INVALID: The specified usage limit is invalid.
 //
 // See https://core.telegram.org/method/messages.exportChatInvite for reference.

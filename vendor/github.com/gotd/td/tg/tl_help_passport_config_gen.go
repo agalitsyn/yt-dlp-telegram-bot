@@ -141,7 +141,7 @@ func (p *HelpPassportConfigNotModified) DecodeBare(b *bin.Buffer) error {
 //
 // See https://core.telegram.org/constructor/help.passportConfig for reference.
 type HelpPassportConfig struct {
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -307,6 +307,10 @@ const HelpPassportConfigClassName = "help.PassportConfig"
 // HelpPassportConfigClass represents help.PassportConfig generic type.
 //
 // See https://core.telegram.org/type/help.PassportConfig for reference.
+//
+// Constructors:
+//   - [HelpPassportConfigNotModified]
+//   - [HelpPassportConfig]
 //
 // Example:
 //

@@ -186,6 +186,16 @@ func (u UpdateDispatcher) OnUserName(handler UserNameHandler) {
 	}
 }
 
+// NewAuthorizationHandler is a NewAuthorization event handler.
+type NewAuthorizationHandler func(ctx context.Context, e Entities, update *UpdateNewAuthorization) error
+
+// OnNewAuthorization sets NewAuthorization handler.
+func (u UpdateDispatcher) OnNewAuthorization(handler NewAuthorizationHandler) {
+	u.handlers[UpdateNewAuthorizationTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateNewAuthorization))
+	}
+}
+
 // NewEncryptedMessageHandler is a NewEncryptedMessage event handler.
 type NewEncryptedMessageHandler func(ctx context.Context, e Entities, update *UpdateNewEncryptedMessage) error
 
@@ -1206,16 +1216,6 @@ func (u UpdateDispatcher) OnAutoSaveSettings(handler AutoSaveSettingsHandler) {
 	}
 }
 
-// GroupInvitePrivacyForbiddenHandler is a GroupInvitePrivacyForbidden event handler.
-type GroupInvitePrivacyForbiddenHandler func(ctx context.Context, e Entities, update *UpdateGroupInvitePrivacyForbidden) error
-
-// OnGroupInvitePrivacyForbidden sets GroupInvitePrivacyForbidden handler.
-func (u UpdateDispatcher) OnGroupInvitePrivacyForbidden(handler GroupInvitePrivacyForbiddenHandler) {
-	u.handlers[UpdateGroupInvitePrivacyForbiddenTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
-		return handler(ctx, e, update.(*UpdateGroupInvitePrivacyForbidden))
-	}
-}
-
 // StoryHandler is a Story event handler.
 type StoryHandler func(ctx context.Context, e Entities, update *UpdateStory) error
 
@@ -1243,5 +1243,315 @@ type StoryIDHandler func(ctx context.Context, e Entities, update *UpdateStoryID)
 func (u UpdateDispatcher) OnStoryID(handler StoryIDHandler) {
 	u.handlers[UpdateStoryIDTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
 		return handler(ctx, e, update.(*UpdateStoryID))
+	}
+}
+
+// StoriesStealthModeHandler is a StoriesStealthMode event handler.
+type StoriesStealthModeHandler func(ctx context.Context, e Entities, update *UpdateStoriesStealthMode) error
+
+// OnStoriesStealthMode sets StoriesStealthMode handler.
+func (u UpdateDispatcher) OnStoriesStealthMode(handler StoriesStealthModeHandler) {
+	u.handlers[UpdateStoriesStealthModeTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateStoriesStealthMode))
+	}
+}
+
+// SentStoryReactionHandler is a SentStoryReaction event handler.
+type SentStoryReactionHandler func(ctx context.Context, e Entities, update *UpdateSentStoryReaction) error
+
+// OnSentStoryReaction sets SentStoryReaction handler.
+func (u UpdateDispatcher) OnSentStoryReaction(handler SentStoryReactionHandler) {
+	u.handlers[UpdateSentStoryReactionTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateSentStoryReaction))
+	}
+}
+
+// BotChatBoostHandler is a BotChatBoost event handler.
+type BotChatBoostHandler func(ctx context.Context, e Entities, update *UpdateBotChatBoost) error
+
+// OnBotChatBoost sets BotChatBoost handler.
+func (u UpdateDispatcher) OnBotChatBoost(handler BotChatBoostHandler) {
+	u.handlers[UpdateBotChatBoostTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotChatBoost))
+	}
+}
+
+// ChannelViewForumAsMessagesHandler is a ChannelViewForumAsMessages event handler.
+type ChannelViewForumAsMessagesHandler func(ctx context.Context, e Entities, update *UpdateChannelViewForumAsMessages) error
+
+// OnChannelViewForumAsMessages sets ChannelViewForumAsMessages handler.
+func (u UpdateDispatcher) OnChannelViewForumAsMessages(handler ChannelViewForumAsMessagesHandler) {
+	u.handlers[UpdateChannelViewForumAsMessagesTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateChannelViewForumAsMessages))
+	}
+}
+
+// PeerWallpaperHandler is a PeerWallpaper event handler.
+type PeerWallpaperHandler func(ctx context.Context, e Entities, update *UpdatePeerWallpaper) error
+
+// OnPeerWallpaper sets PeerWallpaper handler.
+func (u UpdateDispatcher) OnPeerWallpaper(handler PeerWallpaperHandler) {
+	u.handlers[UpdatePeerWallpaperTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdatePeerWallpaper))
+	}
+}
+
+// BotMessageReactionHandler is a BotMessageReaction event handler.
+type BotMessageReactionHandler func(ctx context.Context, e Entities, update *UpdateBotMessageReaction) error
+
+// OnBotMessageReaction sets BotMessageReaction handler.
+func (u UpdateDispatcher) OnBotMessageReaction(handler BotMessageReactionHandler) {
+	u.handlers[UpdateBotMessageReactionTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotMessageReaction))
+	}
+}
+
+// BotMessageReactionsHandler is a BotMessageReactions event handler.
+type BotMessageReactionsHandler func(ctx context.Context, e Entities, update *UpdateBotMessageReactions) error
+
+// OnBotMessageReactions sets BotMessageReactions handler.
+func (u UpdateDispatcher) OnBotMessageReactions(handler BotMessageReactionsHandler) {
+	u.handlers[UpdateBotMessageReactionsTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotMessageReactions))
+	}
+}
+
+// SavedDialogPinnedHandler is a SavedDialogPinned event handler.
+type SavedDialogPinnedHandler func(ctx context.Context, e Entities, update *UpdateSavedDialogPinned) error
+
+// OnSavedDialogPinned sets SavedDialogPinned handler.
+func (u UpdateDispatcher) OnSavedDialogPinned(handler SavedDialogPinnedHandler) {
+	u.handlers[UpdateSavedDialogPinnedTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateSavedDialogPinned))
+	}
+}
+
+// PinnedSavedDialogsHandler is a PinnedSavedDialogs event handler.
+type PinnedSavedDialogsHandler func(ctx context.Context, e Entities, update *UpdatePinnedSavedDialogs) error
+
+// OnPinnedSavedDialogs sets PinnedSavedDialogs handler.
+func (u UpdateDispatcher) OnPinnedSavedDialogs(handler PinnedSavedDialogsHandler) {
+	u.handlers[UpdatePinnedSavedDialogsTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdatePinnedSavedDialogs))
+	}
+}
+
+// SavedReactionTagsHandler is a SavedReactionTags event handler.
+type SavedReactionTagsHandler func(ctx context.Context, e Entities, update *UpdateSavedReactionTags) error
+
+// OnSavedReactionTags sets SavedReactionTags handler.
+func (u UpdateDispatcher) OnSavedReactionTags(handler SavedReactionTagsHandler) {
+	u.handlers[UpdateSavedReactionTagsTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateSavedReactionTags))
+	}
+}
+
+// SMSJobHandler is a SMSJob event handler.
+type SMSJobHandler func(ctx context.Context, e Entities, update *UpdateSMSJob) error
+
+// OnSMSJob sets SMSJob handler.
+func (u UpdateDispatcher) OnSMSJob(handler SMSJobHandler) {
+	u.handlers[UpdateSMSJobTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateSMSJob))
+	}
+}
+
+// QuickRepliesHandler is a QuickReplies event handler.
+type QuickRepliesHandler func(ctx context.Context, e Entities, update *UpdateQuickReplies) error
+
+// OnQuickReplies sets QuickReplies handler.
+func (u UpdateDispatcher) OnQuickReplies(handler QuickRepliesHandler) {
+	u.handlers[UpdateQuickRepliesTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateQuickReplies))
+	}
+}
+
+// NewQuickReplyHandler is a NewQuickReply event handler.
+type NewQuickReplyHandler func(ctx context.Context, e Entities, update *UpdateNewQuickReply) error
+
+// OnNewQuickReply sets NewQuickReply handler.
+func (u UpdateDispatcher) OnNewQuickReply(handler NewQuickReplyHandler) {
+	u.handlers[UpdateNewQuickReplyTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateNewQuickReply))
+	}
+}
+
+// DeleteQuickReplyHandler is a DeleteQuickReply event handler.
+type DeleteQuickReplyHandler func(ctx context.Context, e Entities, update *UpdateDeleteQuickReply) error
+
+// OnDeleteQuickReply sets DeleteQuickReply handler.
+func (u UpdateDispatcher) OnDeleteQuickReply(handler DeleteQuickReplyHandler) {
+	u.handlers[UpdateDeleteQuickReplyTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateDeleteQuickReply))
+	}
+}
+
+// QuickReplyMessageHandler is a QuickReplyMessage event handler.
+type QuickReplyMessageHandler func(ctx context.Context, e Entities, update *UpdateQuickReplyMessage) error
+
+// OnQuickReplyMessage sets QuickReplyMessage handler.
+func (u UpdateDispatcher) OnQuickReplyMessage(handler QuickReplyMessageHandler) {
+	u.handlers[UpdateQuickReplyMessageTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateQuickReplyMessage))
+	}
+}
+
+// DeleteQuickReplyMessagesHandler is a DeleteQuickReplyMessages event handler.
+type DeleteQuickReplyMessagesHandler func(ctx context.Context, e Entities, update *UpdateDeleteQuickReplyMessages) error
+
+// OnDeleteQuickReplyMessages sets DeleteQuickReplyMessages handler.
+func (u UpdateDispatcher) OnDeleteQuickReplyMessages(handler DeleteQuickReplyMessagesHandler) {
+	u.handlers[UpdateDeleteQuickReplyMessagesTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateDeleteQuickReplyMessages))
+	}
+}
+
+// BotBusinessConnectHandler is a BotBusinessConnect event handler.
+type BotBusinessConnectHandler func(ctx context.Context, e Entities, update *UpdateBotBusinessConnect) error
+
+// OnBotBusinessConnect sets BotBusinessConnect handler.
+func (u UpdateDispatcher) OnBotBusinessConnect(handler BotBusinessConnectHandler) {
+	u.handlers[UpdateBotBusinessConnectTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotBusinessConnect))
+	}
+}
+
+// BotNewBusinessMessageHandler is a BotNewBusinessMessage event handler.
+type BotNewBusinessMessageHandler func(ctx context.Context, e Entities, update *UpdateBotNewBusinessMessage) error
+
+// OnBotNewBusinessMessage sets BotNewBusinessMessage handler.
+func (u UpdateDispatcher) OnBotNewBusinessMessage(handler BotNewBusinessMessageHandler) {
+	u.handlers[UpdateBotNewBusinessMessageTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotNewBusinessMessage))
+	}
+}
+
+// BotEditBusinessMessageHandler is a BotEditBusinessMessage event handler.
+type BotEditBusinessMessageHandler func(ctx context.Context, e Entities, update *UpdateBotEditBusinessMessage) error
+
+// OnBotEditBusinessMessage sets BotEditBusinessMessage handler.
+func (u UpdateDispatcher) OnBotEditBusinessMessage(handler BotEditBusinessMessageHandler) {
+	u.handlers[UpdateBotEditBusinessMessageTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotEditBusinessMessage))
+	}
+}
+
+// BotDeleteBusinessMessageHandler is a BotDeleteBusinessMessage event handler.
+type BotDeleteBusinessMessageHandler func(ctx context.Context, e Entities, update *UpdateBotDeleteBusinessMessage) error
+
+// OnBotDeleteBusinessMessage sets BotDeleteBusinessMessage handler.
+func (u UpdateDispatcher) OnBotDeleteBusinessMessage(handler BotDeleteBusinessMessageHandler) {
+	u.handlers[UpdateBotDeleteBusinessMessageTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotDeleteBusinessMessage))
+	}
+}
+
+// NewStoryReactionHandler is a NewStoryReaction event handler.
+type NewStoryReactionHandler func(ctx context.Context, e Entities, update *UpdateNewStoryReaction) error
+
+// OnNewStoryReaction sets NewStoryReaction handler.
+func (u UpdateDispatcher) OnNewStoryReaction(handler NewStoryReactionHandler) {
+	u.handlers[UpdateNewStoryReactionTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateNewStoryReaction))
+	}
+}
+
+// StarsBalanceHandler is a StarsBalance event handler.
+type StarsBalanceHandler func(ctx context.Context, e Entities, update *UpdateStarsBalance) error
+
+// OnStarsBalance sets StarsBalance handler.
+func (u UpdateDispatcher) OnStarsBalance(handler StarsBalanceHandler) {
+	u.handlers[UpdateStarsBalanceTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateStarsBalance))
+	}
+}
+
+// BusinessBotCallbackQueryHandler is a BusinessBotCallbackQuery event handler.
+type BusinessBotCallbackQueryHandler func(ctx context.Context, e Entities, update *UpdateBusinessBotCallbackQuery) error
+
+// OnBusinessBotCallbackQuery sets BusinessBotCallbackQuery handler.
+func (u UpdateDispatcher) OnBusinessBotCallbackQuery(handler BusinessBotCallbackQueryHandler) {
+	u.handlers[UpdateBusinessBotCallbackQueryTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBusinessBotCallbackQuery))
+	}
+}
+
+// StarsRevenueStatusHandler is a StarsRevenueStatus event handler.
+type StarsRevenueStatusHandler func(ctx context.Context, e Entities, update *UpdateStarsRevenueStatus) error
+
+// OnStarsRevenueStatus sets StarsRevenueStatus handler.
+func (u UpdateDispatcher) OnStarsRevenueStatus(handler StarsRevenueStatusHandler) {
+	u.handlers[UpdateStarsRevenueStatusTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateStarsRevenueStatus))
+	}
+}
+
+// BotPurchasedPaidMediaHandler is a BotPurchasedPaidMedia event handler.
+type BotPurchasedPaidMediaHandler func(ctx context.Context, e Entities, update *UpdateBotPurchasedPaidMedia) error
+
+// OnBotPurchasedPaidMedia sets BotPurchasedPaidMedia handler.
+func (u UpdateDispatcher) OnBotPurchasedPaidMedia(handler BotPurchasedPaidMediaHandler) {
+	u.handlers[UpdateBotPurchasedPaidMediaTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateBotPurchasedPaidMedia))
+	}
+}
+
+// PaidReactionPrivacyHandler is a PaidReactionPrivacy event handler.
+type PaidReactionPrivacyHandler func(ctx context.Context, e Entities, update *UpdatePaidReactionPrivacy) error
+
+// OnPaidReactionPrivacy sets PaidReactionPrivacy handler.
+func (u UpdateDispatcher) OnPaidReactionPrivacy(handler PaidReactionPrivacyHandler) {
+	u.handlers[UpdatePaidReactionPrivacyTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdatePaidReactionPrivacy))
+	}
+}
+
+// SentPhoneCodeHandler is a SentPhoneCode event handler.
+type SentPhoneCodeHandler func(ctx context.Context, e Entities, update *UpdateSentPhoneCode) error
+
+// OnSentPhoneCode sets SentPhoneCode handler.
+func (u UpdateDispatcher) OnSentPhoneCode(handler SentPhoneCodeHandler) {
+	u.handlers[UpdateSentPhoneCodeTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateSentPhoneCode))
+	}
+}
+
+// GroupCallChainBlocksHandler is a GroupCallChainBlocks event handler.
+type GroupCallChainBlocksHandler func(ctx context.Context, e Entities, update *UpdateGroupCallChainBlocks) error
+
+// OnGroupCallChainBlocks sets GroupCallChainBlocks handler.
+func (u UpdateDispatcher) OnGroupCallChainBlocks(handler GroupCallChainBlocksHandler) {
+	u.handlers[UpdateGroupCallChainBlocksTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateGroupCallChainBlocks))
+	}
+}
+
+// ReadMonoForumInboxHandler is a ReadMonoForumInbox event handler.
+type ReadMonoForumInboxHandler func(ctx context.Context, e Entities, update *UpdateReadMonoForumInbox) error
+
+// OnReadMonoForumInbox sets ReadMonoForumInbox handler.
+func (u UpdateDispatcher) OnReadMonoForumInbox(handler ReadMonoForumInboxHandler) {
+	u.handlers[UpdateReadMonoForumInboxTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateReadMonoForumInbox))
+	}
+}
+
+// ReadMonoForumOutboxHandler is a ReadMonoForumOutbox event handler.
+type ReadMonoForumOutboxHandler func(ctx context.Context, e Entities, update *UpdateReadMonoForumOutbox) error
+
+// OnReadMonoForumOutbox sets ReadMonoForumOutbox handler.
+func (u UpdateDispatcher) OnReadMonoForumOutbox(handler ReadMonoForumOutboxHandler) {
+	u.handlers[UpdateReadMonoForumOutboxTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateReadMonoForumOutbox))
+	}
+}
+
+// MonoForumNoPaidExceptionHandler is a MonoForumNoPaidException event handler.
+type MonoForumNoPaidExceptionHandler func(ctx context.Context, e Entities, update *UpdateMonoForumNoPaidException) error
+
+// OnMonoForumNoPaidException sets MonoForumNoPaidException handler.
+func (u UpdateDispatcher) OnMonoForumNoPaidException(handler MonoForumNoPaidExceptionHandler) {
+	u.handlers[UpdateMonoForumNoPaidExceptionTypeID] = func(ctx context.Context, e Entities, update UpdateClass) error {
+		return handler(ctx, e, update.(*UpdateMonoForumNoPaidException))
 	}
 }

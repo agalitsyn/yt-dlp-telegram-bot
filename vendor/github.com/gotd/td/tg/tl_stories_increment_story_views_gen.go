@@ -31,18 +31,19 @@ var (
 	_ = tdjson.Encoder{}
 )
 
-// StoriesIncrementStoryViewsRequest represents TL type `stories.incrementStoryViews#22126127`.
+// StoriesIncrementStoryViewsRequest represents TL type `stories.incrementStoryViews#b2028afb`.
+// Increment the view counter of one or more stories.
 //
 // See https://core.telegram.org/method/stories.incrementStoryViews for reference.
 type StoriesIncrementStoryViewsRequest struct {
-	// UserID field of StoriesIncrementStoryViewsRequest.
-	UserID InputUserClass
-	// ID field of StoriesIncrementStoryViewsRequest.
+	// Peer where the stories were posted.
+	Peer InputPeerClass
+	// IDs of the stories (maximum 200 at a time).
 	ID []int
 }
 
 // StoriesIncrementStoryViewsRequestTypeID is TL type id of StoriesIncrementStoryViewsRequest.
-const StoriesIncrementStoryViewsRequestTypeID = 0x22126127
+const StoriesIncrementStoryViewsRequestTypeID = 0xb2028afb
 
 // Ensuring interfaces in compile-time for StoriesIncrementStoryViewsRequest.
 var (
@@ -56,7 +57,7 @@ func (i *StoriesIncrementStoryViewsRequest) Zero() bool {
 	if i == nil {
 		return true
 	}
-	if !(i.UserID == nil) {
+	if !(i.Peer == nil) {
 		return false
 	}
 	if !(i.ID == nil) {
@@ -77,10 +78,10 @@ func (i *StoriesIncrementStoryViewsRequest) String() string {
 
 // FillFrom fills StoriesIncrementStoryViewsRequest from given interface.
 func (i *StoriesIncrementStoryViewsRequest) FillFrom(from interface {
-	GetUserID() (value InputUserClass)
+	GetPeer() (value InputPeerClass)
 	GetID() (value []int)
 }) {
-	i.UserID = from.GetUserID()
+	i.Peer = from.GetPeer()
 	i.ID = from.GetID()
 }
 
@@ -108,8 +109,8 @@ func (i *StoriesIncrementStoryViewsRequest) TypeInfo() tdp.Type {
 	}
 	typ.Fields = []tdp.Field{
 		{
-			Name:       "UserID",
-			SchemaName: "user_id",
+			Name:       "Peer",
+			SchemaName: "peer",
 		},
 		{
 			Name:       "ID",
@@ -122,7 +123,7 @@ func (i *StoriesIncrementStoryViewsRequest) TypeInfo() tdp.Type {
 // Encode implements bin.Encoder.
 func (i *StoriesIncrementStoryViewsRequest) Encode(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't encode stories.incrementStoryViews#22126127 as nil")
+		return fmt.Errorf("can't encode stories.incrementStoryViews#b2028afb as nil")
 	}
 	b.PutID(StoriesIncrementStoryViewsRequestTypeID)
 	return i.EncodeBare(b)
@@ -131,13 +132,13 @@ func (i *StoriesIncrementStoryViewsRequest) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (i *StoriesIncrementStoryViewsRequest) EncodeBare(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't encode stories.incrementStoryViews#22126127 as nil")
+		return fmt.Errorf("can't encode stories.incrementStoryViews#b2028afb as nil")
 	}
-	if i.UserID == nil {
-		return fmt.Errorf("unable to encode stories.incrementStoryViews#22126127: field user_id is nil")
+	if i.Peer == nil {
+		return fmt.Errorf("unable to encode stories.incrementStoryViews#b2028afb: field peer is nil")
 	}
-	if err := i.UserID.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode stories.incrementStoryViews#22126127: field user_id: %w", err)
+	if err := i.Peer.Encode(b); err != nil {
+		return fmt.Errorf("unable to encode stories.incrementStoryViews#b2028afb: field peer: %w", err)
 	}
 	b.PutVectorHeader(len(i.ID))
 	for _, v := range i.ID {
@@ -149,10 +150,10 @@ func (i *StoriesIncrementStoryViewsRequest) EncodeBare(b *bin.Buffer) error {
 // Decode implements bin.Decoder.
 func (i *StoriesIncrementStoryViewsRequest) Decode(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't decode stories.incrementStoryViews#22126127 to nil")
+		return fmt.Errorf("can't decode stories.incrementStoryViews#b2028afb to nil")
 	}
 	if err := b.ConsumeID(StoriesIncrementStoryViewsRequestTypeID); err != nil {
-		return fmt.Errorf("unable to decode stories.incrementStoryViews#22126127: %w", err)
+		return fmt.Errorf("unable to decode stories.incrementStoryViews#b2028afb: %w", err)
 	}
 	return i.DecodeBare(b)
 }
@@ -160,19 +161,19 @@ func (i *StoriesIncrementStoryViewsRequest) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (i *StoriesIncrementStoryViewsRequest) DecodeBare(b *bin.Buffer) error {
 	if i == nil {
-		return fmt.Errorf("can't decode stories.incrementStoryViews#22126127 to nil")
+		return fmt.Errorf("can't decode stories.incrementStoryViews#b2028afb to nil")
 	}
 	{
-		value, err := DecodeInputUser(b)
+		value, err := DecodeInputPeer(b)
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.incrementStoryViews#22126127: field user_id: %w", err)
+			return fmt.Errorf("unable to decode stories.incrementStoryViews#b2028afb: field peer: %w", err)
 		}
-		i.UserID = value
+		i.Peer = value
 	}
 	{
 		headerLen, err := b.VectorHeader()
 		if err != nil {
-			return fmt.Errorf("unable to decode stories.incrementStoryViews#22126127: field id: %w", err)
+			return fmt.Errorf("unable to decode stories.incrementStoryViews#b2028afb: field id: %w", err)
 		}
 
 		if headerLen > 0 {
@@ -181,7 +182,7 @@ func (i *StoriesIncrementStoryViewsRequest) DecodeBare(b *bin.Buffer) error {
 		for idx := 0; idx < headerLen; idx++ {
 			value, err := b.Int()
 			if err != nil {
-				return fmt.Errorf("unable to decode stories.incrementStoryViews#22126127: field id: %w", err)
+				return fmt.Errorf("unable to decode stories.incrementStoryViews#b2028afb: field id: %w", err)
 			}
 			i.ID = append(i.ID, value)
 		}
@@ -189,12 +190,12 @@ func (i *StoriesIncrementStoryViewsRequest) DecodeBare(b *bin.Buffer) error {
 	return nil
 }
 
-// GetUserID returns value of UserID field.
-func (i *StoriesIncrementStoryViewsRequest) GetUserID() (value InputUserClass) {
+// GetPeer returns value of Peer field.
+func (i *StoriesIncrementStoryViewsRequest) GetPeer() (value InputPeerClass) {
 	if i == nil {
 		return
 	}
-	return i.UserID
+	return i.Peer
 }
 
 // GetID returns value of ID field.
@@ -205,7 +206,13 @@ func (i *StoriesIncrementStoryViewsRequest) GetID() (value []int) {
 	return i.ID
 }
 
-// StoriesIncrementStoryViews invokes method stories.incrementStoryViews#22126127 returning error if any.
+// StoriesIncrementStoryViews invokes method stories.incrementStoryViews#b2028afb returning error if any.
+// Increment the view counter of one or more stories.
+//
+// Possible errors:
+//
+//	400 PEER_ID_INVALID: The provided peer id is invalid.
+//	400 STORY_ID_EMPTY: You specified no story IDs.
 //
 // See https://core.telegram.org/method/stories.incrementStoryViews for reference.
 func (c *Client) StoriesIncrementStoryViews(ctx context.Context, request *StoriesIncrementStoryViewsRequest) (bool, error) {

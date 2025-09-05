@@ -138,7 +138,7 @@ func (f *MessagesFavedStickersNotModified) DecodeBare(b *bin.Buffer) error {
 //
 // See https://core.telegram.org/constructor/messages.favedStickers for reference.
 type MessagesFavedStickers struct {
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -369,6 +369,10 @@ const MessagesFavedStickersClassName = "messages.FavedStickers"
 // MessagesFavedStickersClass represents messages.FavedStickers generic type.
 //
 // See https://core.telegram.org/type/messages.FavedStickers for reference.
+//
+// Constructors:
+//   - [MessagesFavedStickersNotModified]
+//   - [MessagesFavedStickers]
 //
 // Example:
 //

@@ -1198,12 +1198,232 @@ func (i *InputStickerSetEmojiDefaultTopicIcons) DecodeBare(b *bin.Buffer) error 
 	return nil
 }
 
+// InputStickerSetEmojiChannelDefaultStatuses represents TL type `inputStickerSetEmojiChannelDefaultStatuses#49748553`.
+// Default custom emoji status¹ stickerset for channel statuses
+//
+// Links:
+//  1. https://core.telegram.org/api/emoji-status
+//
+// See https://core.telegram.org/constructor/inputStickerSetEmojiChannelDefaultStatuses for reference.
+type InputStickerSetEmojiChannelDefaultStatuses struct {
+}
+
+// InputStickerSetEmojiChannelDefaultStatusesTypeID is TL type id of InputStickerSetEmojiChannelDefaultStatuses.
+const InputStickerSetEmojiChannelDefaultStatusesTypeID = 0x49748553
+
+// construct implements constructor of InputStickerSetClass.
+func (i InputStickerSetEmojiChannelDefaultStatuses) construct() InputStickerSetClass { return &i }
+
+// Ensuring interfaces in compile-time for InputStickerSetEmojiChannelDefaultStatuses.
+var (
+	_ bin.Encoder     = &InputStickerSetEmojiChannelDefaultStatuses{}
+	_ bin.Decoder     = &InputStickerSetEmojiChannelDefaultStatuses{}
+	_ bin.BareEncoder = &InputStickerSetEmojiChannelDefaultStatuses{}
+	_ bin.BareDecoder = &InputStickerSetEmojiChannelDefaultStatuses{}
+
+	_ InputStickerSetClass = &InputStickerSetEmojiChannelDefaultStatuses{}
+)
+
+func (i *InputStickerSetEmojiChannelDefaultStatuses) Zero() bool {
+	if i == nil {
+		return true
+	}
+
+	return true
+}
+
+// String implements fmt.Stringer.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) String() string {
+	if i == nil {
+		return "InputStickerSetEmojiChannelDefaultStatuses(nil)"
+	}
+	type Alias InputStickerSetEmojiChannelDefaultStatuses
+	return fmt.Sprintf("InputStickerSetEmojiChannelDefaultStatuses%+v", Alias(*i))
+}
+
+// TypeID returns type id in TL schema.
+//
+// See https://core.telegram.org/mtproto/TL-tl#remarks.
+func (*InputStickerSetEmojiChannelDefaultStatuses) TypeID() uint32 {
+	return InputStickerSetEmojiChannelDefaultStatusesTypeID
+}
+
+// TypeName returns name of type in TL schema.
+func (*InputStickerSetEmojiChannelDefaultStatuses) TypeName() string {
+	return "inputStickerSetEmojiChannelDefaultStatuses"
+}
+
+// TypeInfo returns info about TL type.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) TypeInfo() tdp.Type {
+	typ := tdp.Type{
+		Name: "inputStickerSetEmojiChannelDefaultStatuses",
+		ID:   InputStickerSetEmojiChannelDefaultStatusesTypeID,
+	}
+	if i == nil {
+		typ.Null = true
+		return typ
+	}
+	typ.Fields = []tdp.Field{}
+	return typ
+}
+
+// Encode implements bin.Encoder.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) Encode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputStickerSetEmojiChannelDefaultStatuses#49748553 as nil")
+	}
+	b.PutID(InputStickerSetEmojiChannelDefaultStatusesTypeID)
+	return i.EncodeBare(b)
+}
+
+// EncodeBare implements bin.BareEncoder.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) EncodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputStickerSetEmojiChannelDefaultStatuses#49748553 as nil")
+	}
+	return nil
+}
+
+// Decode implements bin.Decoder.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) Decode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputStickerSetEmojiChannelDefaultStatuses#49748553 to nil")
+	}
+	if err := b.ConsumeID(InputStickerSetEmojiChannelDefaultStatusesTypeID); err != nil {
+		return fmt.Errorf("unable to decode inputStickerSetEmojiChannelDefaultStatuses#49748553: %w", err)
+	}
+	return i.DecodeBare(b)
+}
+
+// DecodeBare implements bin.BareDecoder.
+func (i *InputStickerSetEmojiChannelDefaultStatuses) DecodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputStickerSetEmojiChannelDefaultStatuses#49748553 to nil")
+	}
+	return nil
+}
+
+// InputStickerSetTonGifts represents TL type `inputStickerSetTonGifts#1cf671a0`.
+//
+// See https://core.telegram.org/constructor/inputStickerSetTonGifts for reference.
+type InputStickerSetTonGifts struct {
+}
+
+// InputStickerSetTonGiftsTypeID is TL type id of InputStickerSetTonGifts.
+const InputStickerSetTonGiftsTypeID = 0x1cf671a0
+
+// construct implements constructor of InputStickerSetClass.
+func (i InputStickerSetTonGifts) construct() InputStickerSetClass { return &i }
+
+// Ensuring interfaces in compile-time for InputStickerSetTonGifts.
+var (
+	_ bin.Encoder     = &InputStickerSetTonGifts{}
+	_ bin.Decoder     = &InputStickerSetTonGifts{}
+	_ bin.BareEncoder = &InputStickerSetTonGifts{}
+	_ bin.BareDecoder = &InputStickerSetTonGifts{}
+
+	_ InputStickerSetClass = &InputStickerSetTonGifts{}
+)
+
+func (i *InputStickerSetTonGifts) Zero() bool {
+	if i == nil {
+		return true
+	}
+
+	return true
+}
+
+// String implements fmt.Stringer.
+func (i *InputStickerSetTonGifts) String() string {
+	if i == nil {
+		return "InputStickerSetTonGifts(nil)"
+	}
+	type Alias InputStickerSetTonGifts
+	return fmt.Sprintf("InputStickerSetTonGifts%+v", Alias(*i))
+}
+
+// TypeID returns type id in TL schema.
+//
+// See https://core.telegram.org/mtproto/TL-tl#remarks.
+func (*InputStickerSetTonGifts) TypeID() uint32 {
+	return InputStickerSetTonGiftsTypeID
+}
+
+// TypeName returns name of type in TL schema.
+func (*InputStickerSetTonGifts) TypeName() string {
+	return "inputStickerSetTonGifts"
+}
+
+// TypeInfo returns info about TL type.
+func (i *InputStickerSetTonGifts) TypeInfo() tdp.Type {
+	typ := tdp.Type{
+		Name: "inputStickerSetTonGifts",
+		ID:   InputStickerSetTonGiftsTypeID,
+	}
+	if i == nil {
+		typ.Null = true
+		return typ
+	}
+	typ.Fields = []tdp.Field{}
+	return typ
+}
+
+// Encode implements bin.Encoder.
+func (i *InputStickerSetTonGifts) Encode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputStickerSetTonGifts#1cf671a0 as nil")
+	}
+	b.PutID(InputStickerSetTonGiftsTypeID)
+	return i.EncodeBare(b)
+}
+
+// EncodeBare implements bin.BareEncoder.
+func (i *InputStickerSetTonGifts) EncodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't encode inputStickerSetTonGifts#1cf671a0 as nil")
+	}
+	return nil
+}
+
+// Decode implements bin.Decoder.
+func (i *InputStickerSetTonGifts) Decode(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputStickerSetTonGifts#1cf671a0 to nil")
+	}
+	if err := b.ConsumeID(InputStickerSetTonGiftsTypeID); err != nil {
+		return fmt.Errorf("unable to decode inputStickerSetTonGifts#1cf671a0: %w", err)
+	}
+	return i.DecodeBare(b)
+}
+
+// DecodeBare implements bin.BareDecoder.
+func (i *InputStickerSetTonGifts) DecodeBare(b *bin.Buffer) error {
+	if i == nil {
+		return fmt.Errorf("can't decode inputStickerSetTonGifts#1cf671a0 to nil")
+	}
+	return nil
+}
+
 // InputStickerSetClassName is schema name of InputStickerSetClass.
 const InputStickerSetClassName = "InputStickerSet"
 
 // InputStickerSetClass represents InputStickerSet generic type.
 //
 // See https://core.telegram.org/type/InputStickerSet for reference.
+//
+// Constructors:
+//   - [InputStickerSetEmpty]
+//   - [InputStickerSetID]
+//   - [InputStickerSetShortName]
+//   - [InputStickerSetAnimatedEmoji]
+//   - [InputStickerSetDice]
+//   - [InputStickerSetAnimatedEmojiAnimations]
+//   - [InputStickerSetPremiumGifts]
+//   - [InputStickerSetEmojiGenericAnimations]
+//   - [InputStickerSetEmojiDefaultStatuses]
+//   - [InputStickerSetEmojiDefaultTopicIcons]
+//   - [InputStickerSetEmojiChannelDefaultStatuses]
+//   - [InputStickerSetTonGifts]
 //
 // Example:
 //
@@ -1222,6 +1442,8 @@ const InputStickerSetClassName = "InputStickerSet"
 //	case *tg.InputStickerSetEmojiGenericAnimations: // inputStickerSetEmojiGenericAnimations#4c4d4ce
 //	case *tg.InputStickerSetEmojiDefaultStatuses: // inputStickerSetEmojiDefaultStatuses#29d0f5ee
 //	case *tg.InputStickerSetEmojiDefaultTopicIcons: // inputStickerSetEmojiDefaultTopicIcons#44c1f8e9
+//	case *tg.InputStickerSetEmojiChannelDefaultStatuses: // inputStickerSetEmojiChannelDefaultStatuses#49748553
+//	case *tg.InputStickerSetTonGifts: // inputStickerSetTonGifts#1cf671a0
 //	default: panic(v)
 //	}
 type InputStickerSetClass interface {
@@ -1316,6 +1538,20 @@ func DecodeInputStickerSet(buf *bin.Buffer) (InputStickerSetClass, error) {
 	case InputStickerSetEmojiDefaultTopicIconsTypeID:
 		// Decoding inputStickerSetEmojiDefaultTopicIcons#44c1f8e9.
 		v := InputStickerSetEmojiDefaultTopicIcons{}
+		if err := v.Decode(buf); err != nil {
+			return nil, fmt.Errorf("unable to decode InputStickerSetClass: %w", err)
+		}
+		return &v, nil
+	case InputStickerSetEmojiChannelDefaultStatusesTypeID:
+		// Decoding inputStickerSetEmojiChannelDefaultStatuses#49748553.
+		v := InputStickerSetEmojiChannelDefaultStatuses{}
+		if err := v.Decode(buf); err != nil {
+			return nil, fmt.Errorf("unable to decode InputStickerSetClass: %w", err)
+		}
+		return &v, nil
+	case InputStickerSetTonGiftsTypeID:
+		// Decoding inputStickerSetTonGifts#1cf671a0.
+		v := InputStickerSetTonGifts{}
 		if err := v.Decode(buf); err != nil {
 			return nil, fmt.Errorf("unable to decode InputStickerSetClass: %w", err)
 		}

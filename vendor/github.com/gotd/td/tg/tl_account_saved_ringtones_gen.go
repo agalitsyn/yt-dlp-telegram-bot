@@ -138,7 +138,7 @@ func (s *AccountSavedRingtonesNotModified) DecodeBare(b *bin.Buffer) error {
 //
 // See https://core.telegram.org/constructor/account.savedRingtones for reference.
 type AccountSavedRingtones struct {
-	// Hash for pagination, for more info click here¹
+	// Hash used for caching, for more info click here¹
 	//
 	// Links:
 	//  1) https://core.telegram.org/api/offsets#hash-generation
@@ -327,6 +327,10 @@ const AccountSavedRingtonesClassName = "account.SavedRingtones"
 // AccountSavedRingtonesClass represents account.SavedRingtones generic type.
 //
 // See https://core.telegram.org/type/account.SavedRingtones for reference.
+//
+// Constructors:
+//   - [AccountSavedRingtonesNotModified]
+//   - [AccountSavedRingtones]
 //
 // Example:
 //

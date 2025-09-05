@@ -566,7 +566,7 @@ func (d *DocumentAttributeSticker) GetMaskCoords() (value MaskCoords, ok bool) {
 	return d.MaskCoords, true
 }
 
-// DocumentAttributeVideo represents TL type `documentAttributeVideo#d38ff1c2`.
+// DocumentAttributeVideo represents TL type `documentAttributeVideo#43c57c48`.
 // Defines a video
 //
 // See https://core.telegram.org/constructor/documentAttributeVideo for reference.
@@ -580,7 +580,7 @@ type DocumentAttributeVideo struct {
 	RoundMessage bool
 	// Whether the video supports streaming
 	SupportsStreaming bool
-	// Nosound field of DocumentAttributeVideo.
+	// Whether the specified document is a video file with no audio tracks
 	Nosound bool
 	// Duration in seconds
 	Duration float64
@@ -588,14 +588,26 @@ type DocumentAttributeVideo struct {
 	W int
 	// Video height
 	H int
-	// PreloadPrefixSize field of DocumentAttributeVideo.
+	// Number of bytes to preload when preloading videos (particularly video stories¹).
+	//
+	// Links:
+	//  1) https://core.telegram.org/api/stories
 	//
 	// Use SetPreloadPrefixSize and GetPreloadPrefixSize helpers.
 	PreloadPrefixSize int
+	// Floating point UNIX timestamp in seconds, indicating the frame of the video that
+	// should be used as static preview and thumbnail.
+	//
+	// Use SetVideoStartTs and GetVideoStartTs helpers.
+	VideoStartTs float64
+	// Codec used for the video, i.e. "h264", "h265", or "av1"
+	//
+	// Use SetVideoCodec and GetVideoCodec helpers.
+	VideoCodec string
 }
 
 // DocumentAttributeVideoTypeID is TL type id of DocumentAttributeVideo.
-const DocumentAttributeVideoTypeID = 0xd38ff1c2
+const DocumentAttributeVideoTypeID = 0x43c57c48
 
 // construct implements constructor of DocumentAttributeClass.
 func (d DocumentAttributeVideo) construct() DocumentAttributeClass { return &d }
@@ -638,6 +650,12 @@ func (d *DocumentAttributeVideo) Zero() bool {
 	if !(d.PreloadPrefixSize == 0) {
 		return false
 	}
+	if !(d.VideoStartTs == 0) {
+		return false
+	}
+	if !(d.VideoCodec == "") {
+		return false
+	}
 
 	return true
 }
@@ -660,6 +678,8 @@ func (d *DocumentAttributeVideo) FillFrom(from interface {
 	GetW() (value int)
 	GetH() (value int)
 	GetPreloadPrefixSize() (value int, ok bool)
+	GetVideoStartTs() (value float64, ok bool)
+	GetVideoCodec() (value string, ok bool)
 }) {
 	d.RoundMessage = from.GetRoundMessage()
 	d.SupportsStreaming = from.GetSupportsStreaming()
@@ -669,6 +689,14 @@ func (d *DocumentAttributeVideo) FillFrom(from interface {
 	d.H = from.GetH()
 	if val, ok := from.GetPreloadPrefixSize(); ok {
 		d.PreloadPrefixSize = val
+	}
+
+	if val, ok := from.GetVideoStartTs(); ok {
+		d.VideoStartTs = val
+	}
+
+	if val, ok := from.GetVideoCodec(); ok {
+		d.VideoCodec = val
 	}
 
 }
@@ -728,6 +756,16 @@ func (d *DocumentAttributeVideo) TypeInfo() tdp.Type {
 			SchemaName: "preload_prefix_size",
 			Null:       !d.Flags.Has(2),
 		},
+		{
+			Name:       "VideoStartTs",
+			SchemaName: "video_start_ts",
+			Null:       !d.Flags.Has(4),
+		},
+		{
+			Name:       "VideoCodec",
+			SchemaName: "video_codec",
+			Null:       !d.Flags.Has(5),
+		},
 	}
 	return typ
 }
@@ -746,12 +784,18 @@ func (d *DocumentAttributeVideo) SetFlags() {
 	if !(d.PreloadPrefixSize == 0) {
 		d.Flags.Set(2)
 	}
+	if !(d.VideoStartTs == 0) {
+		d.Flags.Set(4)
+	}
+	if !(d.VideoCodec == "") {
+		d.Flags.Set(5)
+	}
 }
 
 // Encode implements bin.Encoder.
 func (d *DocumentAttributeVideo) Encode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode documentAttributeVideo#d38ff1c2 as nil")
+		return fmt.Errorf("can't encode documentAttributeVideo#43c57c48 as nil")
 	}
 	b.PutID(DocumentAttributeVideoTypeID)
 	return d.EncodeBare(b)
@@ -760,11 +804,11 @@ func (d *DocumentAttributeVideo) Encode(b *bin.Buffer) error {
 // EncodeBare implements bin.BareEncoder.
 func (d *DocumentAttributeVideo) EncodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't encode documentAttributeVideo#d38ff1c2 as nil")
+		return fmt.Errorf("can't encode documentAttributeVideo#43c57c48 as nil")
 	}
 	d.SetFlags()
 	if err := d.Flags.Encode(b); err != nil {
-		return fmt.Errorf("unable to encode documentAttributeVideo#d38ff1c2: field flags: %w", err)
+		return fmt.Errorf("unable to encode documentAttributeVideo#43c57c48: field flags: %w", err)
 	}
 	b.PutDouble(d.Duration)
 	b.PutInt(d.W)
@@ -772,16 +816,22 @@ func (d *DocumentAttributeVideo) EncodeBare(b *bin.Buffer) error {
 	if d.Flags.Has(2) {
 		b.PutInt(d.PreloadPrefixSize)
 	}
+	if d.Flags.Has(4) {
+		b.PutDouble(d.VideoStartTs)
+	}
+	if d.Flags.Has(5) {
+		b.PutString(d.VideoCodec)
+	}
 	return nil
 }
 
 // Decode implements bin.Decoder.
 func (d *DocumentAttributeVideo) Decode(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode documentAttributeVideo#d38ff1c2 to nil")
+		return fmt.Errorf("can't decode documentAttributeVideo#43c57c48 to nil")
 	}
 	if err := b.ConsumeID(DocumentAttributeVideoTypeID); err != nil {
-		return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: %w", err)
+		return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: %w", err)
 	}
 	return d.DecodeBare(b)
 }
@@ -789,11 +839,11 @@ func (d *DocumentAttributeVideo) Decode(b *bin.Buffer) error {
 // DecodeBare implements bin.BareDecoder.
 func (d *DocumentAttributeVideo) DecodeBare(b *bin.Buffer) error {
 	if d == nil {
-		return fmt.Errorf("can't decode documentAttributeVideo#d38ff1c2 to nil")
+		return fmt.Errorf("can't decode documentAttributeVideo#43c57c48 to nil")
 	}
 	{
 		if err := d.Flags.Decode(b); err != nil {
-			return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: field flags: %w", err)
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field flags: %w", err)
 		}
 	}
 	d.RoundMessage = d.Flags.Has(0)
@@ -802,30 +852,44 @@ func (d *DocumentAttributeVideo) DecodeBare(b *bin.Buffer) error {
 	{
 		value, err := b.Double()
 		if err != nil {
-			return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: field duration: %w", err)
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field duration: %w", err)
 		}
 		d.Duration = value
 	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: field w: %w", err)
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field w: %w", err)
 		}
 		d.W = value
 	}
 	{
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: field h: %w", err)
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field h: %w", err)
 		}
 		d.H = value
 	}
 	if d.Flags.Has(2) {
 		value, err := b.Int()
 		if err != nil {
-			return fmt.Errorf("unable to decode documentAttributeVideo#d38ff1c2: field preload_prefix_size: %w", err)
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field preload_prefix_size: %w", err)
 		}
 		d.PreloadPrefixSize = value
+	}
+	if d.Flags.Has(4) {
+		value, err := b.Double()
+		if err != nil {
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field video_start_ts: %w", err)
+		}
+		d.VideoStartTs = value
+	}
+	if d.Flags.Has(5) {
+		value, err := b.String()
+		if err != nil {
+			return fmt.Errorf("unable to decode documentAttributeVideo#43c57c48: field video_codec: %w", err)
+		}
+		d.VideoCodec = value
 	}
 	return nil
 }
@@ -927,6 +991,42 @@ func (d *DocumentAttributeVideo) GetPreloadPrefixSize() (value int, ok bool) {
 		return value, false
 	}
 	return d.PreloadPrefixSize, true
+}
+
+// SetVideoStartTs sets value of VideoStartTs conditional field.
+func (d *DocumentAttributeVideo) SetVideoStartTs(value float64) {
+	d.Flags.Set(4)
+	d.VideoStartTs = value
+}
+
+// GetVideoStartTs returns value of VideoStartTs conditional field and
+// boolean which is true if field was set.
+func (d *DocumentAttributeVideo) GetVideoStartTs() (value float64, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(4) {
+		return value, false
+	}
+	return d.VideoStartTs, true
+}
+
+// SetVideoCodec sets value of VideoCodec conditional field.
+func (d *DocumentAttributeVideo) SetVideoCodec(value string) {
+	d.Flags.Set(5)
+	d.VideoCodec = value
+}
+
+// GetVideoCodec returns value of VideoCodec conditional field and
+// boolean which is true if field was set.
+func (d *DocumentAttributeVideo) GetVideoCodec() (value string, ok bool) {
+	if d == nil {
+		return
+	}
+	if !d.Flags.Has(5) {
+		return value, false
+	}
+	return d.VideoCodec, true
 }
 
 // DocumentAttributeAudio represents TL type `documentAttributeAudio#9852f9c6`.
@@ -1772,6 +1872,16 @@ const DocumentAttributeClassName = "DocumentAttribute"
 //
 // See https://core.telegram.org/type/DocumentAttribute for reference.
 //
+// Constructors:
+//   - [DocumentAttributeImageSize]
+//   - [DocumentAttributeAnimated]
+//   - [DocumentAttributeSticker]
+//   - [DocumentAttributeVideo]
+//   - [DocumentAttributeAudio]
+//   - [DocumentAttributeFilename]
+//   - [DocumentAttributeHasStickers]
+//   - [DocumentAttributeCustomEmoji]
+//
 // Example:
 //
 //	g, err := tg.DecodeDocumentAttribute(buf)
@@ -1782,7 +1892,7 @@ const DocumentAttributeClassName = "DocumentAttribute"
 //	case *tg.DocumentAttributeImageSize: // documentAttributeImageSize#6c37c15c
 //	case *tg.DocumentAttributeAnimated: // documentAttributeAnimated#11b58939
 //	case *tg.DocumentAttributeSticker: // documentAttributeSticker#6319d612
-//	case *tg.DocumentAttributeVideo: // documentAttributeVideo#d38ff1c2
+//	case *tg.DocumentAttributeVideo: // documentAttributeVideo#43c57c48
 //	case *tg.DocumentAttributeAudio: // documentAttributeAudio#9852f9c6
 //	case *tg.DocumentAttributeFilename: // documentAttributeFilename#15590068
 //	case *tg.DocumentAttributeHasStickers: // documentAttributeHasStickers#9801d2f7
@@ -1837,7 +1947,7 @@ func DecodeDocumentAttribute(buf *bin.Buffer) (DocumentAttributeClass, error) {
 		}
 		return &v, nil
 	case DocumentAttributeVideoTypeID:
-		// Decoding documentAttributeVideo#d38ff1c2.
+		// Decoding documentAttributeVideo#43c57c48.
 		v := DocumentAttributeVideo{}
 		if err := v.Decode(buf); err != nil {
 			return nil, fmt.Errorf("unable to decode DocumentAttributeClass: %w", err)
