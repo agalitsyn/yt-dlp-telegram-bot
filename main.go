@@ -20,8 +20,10 @@ import (
 
 var dlQueue DownloadQueue
 
-var telegramUploader *uploader.Uploader
-var telegramSender *message.Sender
+var (
+	telegramUploader *uploader.Uploader
+	telegramSender   *message.Sender
+)
 
 func handleCmdDLP(ctx context.Context, entities tg.Entities, u *tg.UpdateNewMessage, msg *tg.Message) {
 	format := "video"
@@ -105,7 +107,7 @@ func handleMsg(ctx context.Context, entities tg.Entities, u *tg.UpdateNewMessage
 			if fromGroup == nil {
 				_, _ = telegramSender.Reply(entities, u).Text(ctx, "🤖 Welcome! This bot downloads videos from various "+
 					"supported sources and then re-uploads them to Telegram, so they can be viewed with Telegram's built-in "+
-					"video player.\n\nMore info: https://github.com/nonoo/yt-dlp-telegram-bot")
+					"video player.")
 			}
 			return nil
 		default:
@@ -124,6 +126,9 @@ func handleMsg(ctx context.Context, entities tg.Entities, u *tg.UpdateNewMessage
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	fmt.Println("yt-dlp-telegram-bot starting...")
 
 	if err := params.Init(); err != nil {
@@ -142,9 +147,34 @@ func main() {
 		panic(fmt.Sprint("options from env err: ", err))
 	}
 
-	client := telegram.NewClient(params.ApiID, params.ApiHash, opts)
+	ticker := time.NewTicker(24 * time.Hour) // TODO: move to config
+	go func() {
+		defer ticker.Stop()
 
-	if err := client.Run(context.Background(), func(ctx context.Context) error {
+		for {
+			select {
+			case t := <-ticker.C:
+				fmt.Printf("run yt-dlp version checker at %s", t.Format(time.RFC3339))
+				s, updateNeeded, gotError := ytdlpVersionCheckGetStr(ctx)
+				if gotError {
+					sendTextToAdmins(ctx, s)
+				} else if updateNeeded {
+					goutubedl.Path, err = ytdlpDownloadLatest(ctx)
+					if err != nil {
+						panic(fmt.Sprint("error: ", err))
+					}
+					ytdlpVersionCheckStr, _, _ := ytdlpVersionCheckGetStr(ctx)
+					sendTextToAdmins(ctx, "🤖 Bot updated, "+ytdlpVersionCheckStr)
+				}
+			case <-ctx.Done():
+				fmt.Printf("stop yt-dlp version checker: %s\n", ctx.Err())
+				return
+			}
+		}
+	}()
+
+	client := telegram.NewClient(params.ApiID, params.ApiHash, opts)
+	err = client.Run(ctx, func(ctx context.Context) error {
 		status, err := client.Auth().Status(ctx)
 		if err != nil {
 			panic(fmt.Sprint("auth status err: ", err))
@@ -184,28 +214,14 @@ func main() {
 			}
 			ytdlpVersionCheckStr, _, _ = ytdlpVersionCheckGetStr(ctx)
 		}
-		sendTextToAdmins(ctx, "🤖 Bot started, "+ytdlpVersionCheckStr)
+		fmt.Printf("%s %s\n", ytdlpVersionCheckStr, goutubedl.Path)
 
-		go func() {
-			for {
-				time.Sleep(24 * time.Hour)
-				s, updateNeeded, gotError := ytdlpVersionCheckGetStr(ctx)
-				if gotError {
-					sendTextToAdmins(ctx, s)
-				} else if updateNeeded {
-					goutubedl.Path, err = ytdlpDownloadLatest(ctx)
-					if err != nil {
-						panic(fmt.Sprint("error: ", err))
-					}
-					ytdlpVersionCheckStr, _, _ = ytdlpVersionCheckGetStr(ctx)
-					sendTextToAdmins(ctx, "🤖 Bot updated, "+ytdlpVersionCheckStr)
-				}
-			}
-		}()
+		sendTextToAdmins(ctx, "🤖 Bot started, "+ytdlpVersionCheckStr)
 
 		<-ctx.Done()
 		return nil
-	}); err != nil {
-		panic(err)
+	})
+	if err != nil {
+		fmt.Printf("telegram client error: %s\n", err)
 	}
 }

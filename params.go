@@ -17,6 +17,8 @@ type paramsType struct {
 	ApiHash  string
 	BotToken string
 
+	YtdlpCookiesFilePath string
+
 	AllowedUserIDs  []int64
 	AdminUserIDs    []int64
 	AllowedGroupIDs []int64
@@ -35,15 +37,22 @@ func (p *paramsType) Init() error {
 	flag.StringVar(&apiID, "api-id", "", "telegram api_id")
 	flag.StringVar(&p.ApiHash, "api-hash", "", "telegram api_hash")
 	flag.StringVar(&p.BotToken, "bot-token", "", "telegram bot token")
+
 	flag.StringVar(&goutubedl.Path, "yt-dlp-path", "", "yt-dlp path")
+	flag.StringVar(&p.YtdlpCookiesFilePath, "yt-dlp-cookies-file", "", "yt-dlp cookies file path")
+
 	var allowedUserIDs string
 	flag.StringVar(&allowedUserIDs, "allowed-user-ids", "", "allowed telegram user ids")
+
 	var adminUserIDs string
 	flag.StringVar(&adminUserIDs, "admin-user-ids", "", "admin telegram user ids")
+
 	var allowedGroupIDs string
 	flag.StringVar(&allowedGroupIDs, "allowed-group-ids", "", "allowed telegram group ids")
+
 	var maxSize string
 	flag.StringVar(&maxSize, "max-size", "", "allowed max size of video files")
+
 	flag.Parse()
 
 	var err error
@@ -77,6 +86,10 @@ func (p *paramsType) Init() error {
 	}
 	if goutubedl.Path == "" {
 		goutubedl.Path = "yt-dlp"
+	}
+
+	if p.YtdlpCookiesFilePath == "" {
+		p.YtdlpCookiesFilePath = os.Getenv("YTDLP_COOKIES_FILE")
 	}
 
 	if allowedUserIDs == "" {
@@ -136,20 +149,6 @@ func (p *paramsType) Init() error {
 			return fmt.Errorf("invalid max size: %w", err)
 		}
 		p.MaxSize = b.Int64()
-	}
-
-	// Writing env. var YTDLP_COOKIES contents to a file.
-	// In case a docker container is used, the yt-dlp.conf points yt-dlp to this cookie file.
-	if cookies := os.Getenv("YTDLP_COOKIES"); cookies != "" {
-		f, err := os.Create("/app/yt-dlp-cookies.txt")
-		if err != nil {
-			return fmt.Errorf("couldn't create cookies file: %w", err)
-		}
-		_, err = f.WriteString(cookies)
-		if err != nil {
-			return fmt.Errorf("couldn't write cookies file: %w", err)
-		}
-		f.Close()
 	}
 
 	return nil

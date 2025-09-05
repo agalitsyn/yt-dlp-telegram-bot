@@ -57,18 +57,24 @@ Build image locally and copy needed files to server:
 docker buildx build --platform linux/amd64 -t yt-dlp-tg-bot:latest .
 docker save yt-dlp-tg-bot:latest | gzip > yt-dlp-tg-bot.tar.gz
 
+scp yt-dlp-tg-bot.tar.gz <address> -l <user> -p <port>
 scp docker-compose.yml <address> -l <user> -p <port>
 scp config.inc.sh-example <address> -l <user> -p <port>
-scp yt-dlp-tg-bot.tar.gz <address> -l <user> -p <port>
+scp yt-dlp.conf <address> -l <user> -p <port>
 ```
 
 In most cases you will get error `Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication`.
-Prepare cookie file locally:
+Export cookie file as described in [guide](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies) using anonymous session and browser extension for exporting cookies, such as [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc) for Chrome or [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/) for Firefox:
+
+Then copy file to server
+```sh
+scp yt-dlp-cookies.txt <address> -l <user> -p <port>
+```
+
+For another sources (not youtube) `yt-dlp` can pick up credentials from netrc file.
 
 ```sh
-yt-dlp --cookies-from-browser <YOUR-BROWSER-NAME (like chrome)> --cookies yt-dlp-cookies.txt
-scp yt-dlp-cookies.txt <address> -l <user> -p <port>
-scp yt-dlp.conf <address> -l <user> -p <port>
+scp netrc <address> -l <user> -p <port>
 ```
 
 `ssh` to server, import image and run `docker compose`:

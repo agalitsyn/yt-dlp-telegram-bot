@@ -3,9 +3,16 @@ services:
     image: yt-dlp-tg-bot
     container_name: bot
     build: .
+    environment:
+      - YTDLP_COOKIES_FILE=/app/yt-dlp-cookies.txt
     env_file:
       - config.inc.sh
     volumes:
+      - ytdlp_cache:/root/.cache/yt-dlp
       - ./yt-dlp-cookies.txt:/app/yt-dlp-cookies.txt
       - ./yt-dlp.conf:/root/yt-dlp.conf
+      - ./netrc:/root/.netrc
     restart: always
+
+volumes:
+  ytdlp_cache:
