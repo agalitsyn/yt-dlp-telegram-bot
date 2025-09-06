@@ -1,4 +1,4 @@
-module github.com/nonoo/yt-dlp-telegram-bot
+module yt-dlp-telegram-bot
 
 go 1.25
 
