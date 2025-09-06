@@ -12,6 +12,7 @@ services:
       - ./yt-dlp-cookies.txt:/app/yt-dlp-cookies.txt
       - ./yt-dlp.conf:/root/yt-dlp.conf
       - ./netrc:/root/.netrc
+      - ./data:/data
     restart: always
 
 volumes:
